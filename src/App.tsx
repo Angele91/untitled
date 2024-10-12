@@ -1,24 +1,21 @@
 import './App.css';
-import {ChangeEventHandler, createContext, Dispatch, SetStateAction, useMemo} from 'react';
-import { Book, parseBook } from './lib/epub';
+import {ChangeEventHandler, createContext} from 'react';
+import {Book, parseBook} from './lib/epub';
 import BookGrid from './components/book-grid';
 import BookDetail from './components/book-detail';
-import { useLocalStorage } from 'usehooks-ts';
+import {useLocalStorage} from 'usehooks-ts';
+import {useLiveQuery} from "dexie-react-hooks";
+import {db} from "./lib/db.ts";
 
-export const AppContext = createContext<{
-  books: Book[];
-  setBooks: Dispatch<SetStateAction<Book[]>>;
-  selectedBook: Book | null;
-  setSelectedBook: Dispatch<SetStateAction<Book | null>>;
-}>({
-  books: [],
-  setBooks: () => {},
-  selectedBook: null,
-  setSelectedBook: () => {},
+export const AppContext = createContext({
+  books: [] as Book[] | null,
+  selectedBook: null as Book | null,
+  setSelectedBook: (() => {
+  }) as (book: Book | null) => void,
 });
 
 function App() {
-  const [books, setBooks] = useLocalStorage<Book[]>('books', []);
+  const books = useLiveQuery(() => db.books.toArray(), []);
   const [selectedBook, setSelectedBook] = useLocalStorage<Book | null>('selectedBook', null);
 
   const onChooseFile: ChangeEventHandler<HTMLInputElement> = async (e) => {
@@ -36,28 +33,21 @@ function App() {
       newBooks.push(book);
     }
 
-    console.debug({ newBooks });
-
-    setBooks([...books, ...newBooks]);
+    db.books.bulkAdd(newBooks);
 
     e.target.value = "";
   };
 
   const onBookDelete = (book: Book) => {
-    setBooks(books.filter((b) => b !== book));
+    db.books.delete(book.id);
   };
 
-  const contextValue = useMemo(() => {
-    return {
-      books,
-      setBooks,
+  return (
+    <AppContext.Provider value={{
+      books: books ?? [],
       selectedBook,
       setSelectedBook,
-    };
-  }, [books, selectedBook, setBooks, setSelectedBook]);
-
-  return (
-    <AppContext.Provider value={contextValue}>
+    }}>
       {selectedBook ? (
         <BookDetail
           selectedBook={selectedBook}
@@ -65,7 +55,7 @@ function App() {
         />
       ) : (
         <BookGrid
-          books={books}
+          books={books ?? []}
           onChooseFile={onChooseFile}
           onBookSelect={setSelectedBook}
           onBookDelete={onBookDelete}

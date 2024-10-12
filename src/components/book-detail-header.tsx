@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {FaChevronLeft} from 'react-icons/fa';
 import {FontSizeSelector} from "./font-size-selector.tsx";
 
@@ -10,22 +10,59 @@ interface HeaderOption {
 interface BookHeaderProps {
   title: string;
   onBack: () => void;
-  showHeader: boolean;
   fontSize: string;
-  onFontSizeChange: (size: string) => void;
-  openOptionId: string | null;
-  setOpenOptionId: (id: string | null) => void;
+  onChangeFontSize: (newSize: string) => void;
 }
 
 const BookDetailHeader: React.FC<BookHeaderProps> = ({
                                                        title,
                                                        onBack,
-                                                       showHeader,
                                                        fontSize,
-                                                       onFontSizeChange,
-                                                       openOptionId,
-                                                       setOpenOptionId
+                                                       onChangeFontSize
                                                      }) => {
+  const [openOptionId, setOpenOptionId] = useState<string | null>(null);
+  const [showHeader, setShowHeader] = useState(true);
+  const lastScrollTop = useRef(0);
+
+  const handleFontSizeChange = useCallback((newSize: string) => {
+    onChangeFontSize(newSize);
+  }, [onChangeFontSize]);
+
+  const handleScroll = useCallback(() => {
+    const st = window.pageYOffset || document.documentElement.scrollTop;
+    if (st > lastScrollTop.current) {
+      setShowHeader(false);
+      setOpenOptionId(null);
+    } else if (st < lastScrollTop.current) {
+      setShowHeader(true);
+    }
+    lastScrollTop.current = st <= 0 ? 0 : st;
+  }, []);
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    const headerElement = document.querySelector('header');
+    if (headerElement && headerElement.contains(e.target as Node)) {
+      return;
+    }
+
+    if (e.clientY < 20) {
+      setShowHeader(true);
+    } else if (e.clientY > 100) {
+      setShowHeader(false);
+      setOpenOptionId(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [handleScroll, handleMouseMove]);
+
   const headerOptions: HeaderOption[] = useMemo(() => [
     {
       id: 'fontSize',
@@ -34,12 +71,12 @@ const BookDetailHeader: React.FC<BookHeaderProps> = ({
           isOpen={isOpen}
           onToggle={onToggle}
           currentSize={fontSize}
-          onSizeChange={onFontSizeChange}
+          onSizeChange={handleFontSizeChange}
         />
       ),
     },
     // Add more header options here as needed
-  ], [fontSize, onFontSizeChange]);
+  ], [fontSize, handleFontSizeChange]);
 
   return (
     <header

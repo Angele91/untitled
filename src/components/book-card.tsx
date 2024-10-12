@@ -11,7 +11,7 @@ interface BookCardProps {
 
 const BookCard: FC<BookCardProps> = ({book, onBookSelect, onDeleteBook}) => {
   return (
-    <button
+    <div
       className={"overflow-hidden flex flex-col w-full h-[540px] relative group rounded-md"}
       onClick={() => onBookSelect(book)}
     >
@@ -39,7 +39,7 @@ const BookCard: FC<BookCardProps> = ({book, onBookSelect, onDeleteBook}) => {
           <FaTrash/>
         </button>
       </div>
-    </button>
+    </div>
   );
 };
 

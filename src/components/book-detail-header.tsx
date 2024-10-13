@@ -1,32 +1,44 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {FaChevronLeft} from 'react-icons/fa';
-import {FontSizeSelector} from "./font-size-selector.tsx";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FaChevronLeft, FaPlay, FaPause } from 'react-icons/fa';
+import { FontSizeSelector } from "./font-size-selector.tsx";
+import {PaceSelector} from "./pace-selector.tsx";
+import {ScrollBlockOption, ScrollBlockSelector} from "./scroll-block-selector.tsx";
 
 interface HeaderOption {
   id: string;
   component: React.FC<{ isOpen: boolean; onToggle: () => void }>;
 }
 
+
 interface BookHeaderProps {
   title: string;
   onBack: () => void;
   fontSize: string;
   onChangeFontSize: (newSize: string) => void;
+  pace: number;
+  onChangePace: (newPace: number) => void;
+  isPlaying: boolean;
+  onPlayPauseToggle: () => void;
+  scrollBlock: ScrollBlockOption;
+  onChangeScrollBlock: (newBlock: ScrollBlockOption) => void;
 }
+
 
 const BookDetailHeader: React.FC<BookHeaderProps> = ({
                                                        title,
                                                        onBack,
                                                        fontSize,
-                                                       onChangeFontSize
+                                                       onChangeFontSize,
+                                                       pace,
+                                                       onChangePace,
+                                                       isPlaying,
+                                                       onPlayPauseToggle,
+  scrollBlock,
+  onChangeScrollBlock
                                                      }) => {
   const [openOptionId, setOpenOptionId] = useState<string | null>(null);
   const [showHeader, setShowHeader] = useState(true);
   const lastScrollTop = useRef(0);
-
-  const handleFontSizeChange = useCallback((newSize: string) => {
-    onChangeFontSize(newSize);
-  }, [onChangeFontSize]);
 
   const handleScroll = useCallback(() => {
     const st = window.pageYOffset || document.documentElement.scrollTop;
@@ -71,12 +83,33 @@ const BookDetailHeader: React.FC<BookHeaderProps> = ({
           isOpen={isOpen}
           onToggle={onToggle}
           currentSize={fontSize}
-          onSizeChange={handleFontSizeChange}
+          onSizeChange={onChangeFontSize}
         />
       ),
     },
-    // Add more header options here as needed
-  ], [fontSize, handleFontSizeChange]);
+    {
+      id: 'pace',
+      component: ({isOpen, onToggle}) => (
+        <PaceSelector
+          isOpen={isOpen}
+          onToggle={onToggle}
+          currentPace={pace}
+          onPaceChange={onChangePace}
+        />
+      ),
+    },
+    {
+      id: 'scrollBlock',
+      component: ({isOpen, onToggle}) => (
+        <ScrollBlockSelector
+          isOpen={isOpen}
+          onToggle={onToggle}
+          currentBlock={scrollBlock}
+          onBlockChange={onChangeScrollBlock}
+        />
+      ),
+    },
+  ], [fontSize, onChangeFontSize, pace, onChangePace, scrollBlock, onChangeScrollBlock]);
 
   return (
     <header
@@ -91,6 +124,12 @@ const BookDetailHeader: React.FC<BookHeaderProps> = ({
         <span className="text-lg">{title}</span>
       </div>
       <div className="flex items-center gap-4">
+        <button
+          onClick={onPlayPauseToggle}
+          className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          {isPlaying ? <FaPause /> : <FaPlay />}
+        </button>
         {headerOptions.map((option) => (
           <option.component
             key={option.id}

@@ -6,5 +6,5 @@ export const delayConfig = {
   '?': 300,
   ';': 200,
   ':': 200,
-  paragraph: 1000,
+  paragraph: 300,
 };

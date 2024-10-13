@@ -11,7 +11,7 @@ export const PaceSelector: React.FC<{
     {name: 'Very Slow', value: 500, icon: <FaGauge size={10}/>},
     {name: 'Slow', value: 300, icon: <FaGauge size={12}/>},
     {name: 'Normal', value: 200, icon: <FaGauge size={14}/>},
-    {name: 'Fast', value: 150, icon: <FaGauge size={16}/>},
+    {name: 'Fast', value: 125, icon: <FaGauge size={16}/>},
     {name: 'Very Fast', value: 100, icon: <FaGauge size={18}/>},
   ];
 

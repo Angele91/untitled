@@ -24,7 +24,7 @@ const BookDetail: React.FC<BookDetailProps> = ({onBack}) => {
     focusedWordIndex,
     sequentialReadingEnabled,
     toggleSequentialReading
-  } = useSequentialReading(contentRef, focusWordPace, scrollBlock);
+  } = useSequentialReading(focusWordPace, scrollBlock);
 
   const {focusedWordCoords} = useWordHighlight({
     contentRef,
@@ -54,16 +54,18 @@ const BookDetail: React.FC<BookDetailProps> = ({onBack}) => {
         isFastReadingFontEnabled={isFastReadingFontEnabled}
         onToggleFastReadingFont={() => setIsFastReadingFontEnabled(!isFastReadingFontEnabled)}
       />
-      <div
-        className={'absolute transition-all duration-100 rounded-md'}
-        style={{
-          top: focusedWordCoords?.top,
-          left: focusedWordCoords?.left - 4,
-          width: focusedWordCoords?.width + 8,
-          height: focusedWordCoords?.height + 4,
-          border: '1px solid red',
-        }}
-      />
+      {sequentialReadingEnabled && (
+        <div
+          className={'absolute transition-all duration-100 rounded-md'}
+          style={{
+            top: focusedWordCoords?.top ?? 0,
+            left: (focusedWordCoords?.left ?? 0) - 4,
+            width: (focusedWordCoords?.width ?? 0) + 8,
+            height: (focusedWordCoords?.height ?? 0) + 4,
+            border: '1px solid red',
+          }}
+        />
+      )}
       <main className="p-8 flex flex-col gap-8" ref={contentRef}>
         {memoizedChapters}
       </main>

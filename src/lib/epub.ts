@@ -30,7 +30,7 @@ export interface Chapter {
   htmlContent: string;
 }
 
-async function getEPUBMetadata(zip: JSZip.JSZip): Promise<Omit<Book, 'chapters' | 'format'>> {
+async function getEPUBMetadata(zip: any): Promise<Omit<Book, 'chapters' | 'format'>> {
   const containerXml = await zip.file('META-INF/container.xml')?.async('text');
   if (!containerXml) throw new Error('container.xml not found');
 
@@ -44,7 +44,7 @@ async function getEPUBMetadata(zip: JSZip.JSZip): Promise<Omit<Book, 'chapters' 
   const title = getMetadataValue(opfDoc, 'dc:title') || '';
   const author = getMetadataValue(opfDoc, 'dc:creator') || '';
   const description = getMetadataValue(opfDoc, 'dc:description') || '';
-  const coverPath = getCoverPath(opfDoc, zip, rootFilePath);
+  const coverPath = getCoverPath(opfDoc, rootFilePath);
 
   let cover = '';
   if (coverPath) {
@@ -72,7 +72,7 @@ function getMetadataValue(doc: Document, tagName: string): string | null {
   return element ? element.textContent : null;
 }
 
-function getCoverPath(opfDoc: Document, zip: JSZip.JSZip, rootFilePath: string): string | null {
+function getCoverPath(opfDoc: Document, rootFilePath: string): string | null {
   const metaElements = opfDoc.getElementsByTagName('meta');
   let coverId = null;
 

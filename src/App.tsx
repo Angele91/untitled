@@ -50,7 +50,6 @@ function App() {
     }}>
       {selectedBook ? (
         <BookDetail
-          selectedBook={selectedBook}
           onBack={() => setSelectedBook(null)}
         />
       ) : (

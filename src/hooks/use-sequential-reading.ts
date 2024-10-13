@@ -1,10 +1,9 @@
-import {RefObject, useEffect, useRef, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {ScrollBlockOption} from "../components/scroll-block-selector.tsx";
 import {delayConfig} from "../lib/constants.ts";
 import {getNextWord} from "../lib/textProcessing.tsx";
 
 export const useSequentialReading = (
-  contentRef: RefObject<HTMLDivElement>,
   focusWordPace: number,
   scrollBlock: ScrollBlockOption
 ) => {
@@ -42,7 +41,8 @@ export const useSequentialReading = (
         return;
       }
 
-      const delay = focusWordPace + (isParagraphEnd ? delayConfig.paragraph : (delayConfig[punctuation] || delayConfig.default));
+      const delayForPunctuation = delayConfig[punctuation as keyof typeof delayConfig];
+      const delay = focusWordPace + (isParagraphEnd ? delayConfig.paragraph : (delayForPunctuation || delayConfig.default));
 
       const nextWordId = parseInt(nextWord.id.split('-')[1]);
 

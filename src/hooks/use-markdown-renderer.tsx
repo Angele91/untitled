@@ -4,6 +4,7 @@ import {isEmpty, trim} from "lodash";
 import ResourceImage from "../components/resource-image.tsx";
 import {convertWordsToSpans} from "../lib/textProcessing.tsx";
 import {MemoizedMarkdown} from "../components/memoized-markdown.tsx";
+import {Chapter} from "../lib/epub.ts";
 
 interface UseMarkdownRendererProps {
   selectedBook: any;
@@ -38,7 +39,7 @@ export const useMarkdownRenderer = ({
         className="text-base font-semibold my-2">{convertWordsToSpans(children, spanBoldPercentage)}</h5>,
       h6: ({children}) => <h6
         className="text-sm font-semibold my-2">{convertWordsToSpans(children, spanBoldPercentage)}</h6>,
-      img: ({src, alt}) => <ResourceImage book={selectedBook} path={src} alt={alt}/>,
+      img: ({src}) => <ResourceImage book={selectedBook} path={src} />,
       p: ({children}) => (
         <p className="my-4" style={{fontSize}}>
           {convertWordsToSpans(children, spanBoldPercentage)}
@@ -61,7 +62,7 @@ export const useMarkdownRenderer = ({
   }) as MarkdownToJSX.Options, [spanBoldPercentage, selectedBook, fontSize]);
 
   const memoizedChapters = useMemo(() => {
-    return selectedBook.chapters.map((chapter, index) => (
+    return selectedBook.chapters.map((chapter: Chapter, index: number) => (
       <MemoizedMarkdown
         key={`chapter-${index}`}
         content={chapter.mdContent}
@@ -81,7 +82,7 @@ export const useMarkdownRenderer = ({
     const allSpans = Array.from(article).flatMap((el) => Array.from(el.querySelectorAll('span')));
 
     Array.from(allSpans).filter((span) => {
-      return !isEmpty(trim(span.textContent));
+      return !isEmpty(trim(span.textContent ?? undefined));
     }).forEach((span, index) => {
       span.id = `word-${index}`;
     });

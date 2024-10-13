@@ -1,23 +1,24 @@
-import React, { useContext, useRef, useState } from 'react';
-import { AppContext } from "../App.tsx";
+import React, {useContext, useRef, useState} from 'react';
+import {AppContext} from "../App.tsx";
 import BookDetailHeader from "./book-detail-header.tsx";
-import { useLocalStorage } from "usehooks-ts";
-import { twMerge } from "tailwind-merge";
-import { ScrollBlockOption } from "./scroll-block-selector.tsx";
-import {useSequentialReading} from "../hooks/useSequentialReading.ts";
-import {useWordHighlight} from "../hooks/useWordHighlight.ts";
-import {useMarkdownRenderer} from "../hooks/useMarkdownRenderer.tsx";
+import {useLocalStorage} from "usehooks-ts";
+import {twMerge} from "tailwind-merge";
+import {ScrollBlockOption} from "./scroll-block-selector.tsx";
+import {useSequentialReading} from "../hooks/use-sequential-reading.ts";
+import {useWordHighlight} from "../hooks/use-word-highlight.ts";
+import {useMarkdownRenderer} from "../hooks/use-markdown-renderer.tsx";
 
 interface BookDetailProps {
   onBack: () => void;
 }
 
-const BookDetail: React.FC<BookDetailProps> = ({ onBack }) => {
-  const { selectedBook } = useContext(AppContext);
+const BookDetail: React.FC<BookDetailProps> = ({onBack}) => {
+  const {selectedBook} = useContext(AppContext);
   const [fontSize, setFontSize] = useLocalStorage('fontSize', '16px');
   const [focusWordPace, setFocusWordPace] = useState(200);
   const [scrollBlock, setScrollBlock] = useState<ScrollBlockOption>("center");
-  const contentRef = useRef<HTMLDivElement>(null);
+  const [isFastReadingFontEnabled, setIsFastReadingFontEnabled] = useLocalStorage('isFastReadingFontEnabled', false);
+  const contentRef = useRef<HTMLDivElement | null>(null);
 
   const {
     focusedWordIndex,
@@ -25,9 +26,17 @@ const BookDetail: React.FC<BookDetailProps> = ({ onBack }) => {
     toggleSequentialReading
   } = useSequentialReading(contentRef, focusWordPace, scrollBlock);
 
-  const { focusedWordCoords } = useWordHighlight(contentRef, focusedWordIndex);
+  const {focusedWordCoords} = useWordHighlight({
+    contentRef,
+    focusedWordIndex,
+  });
 
-  const { memoizedChapters } = useMarkdownRenderer(selectedBook, fontSize);
+  const {memoizedChapters} = useMarkdownRenderer({
+    selectedBook,
+    fontSize,
+    enableFastReadingFont: isFastReadingFontEnabled,
+    fastReadingFontPercentage: 0.45,
+  });
 
   return (
     <div className={twMerge("w-screen h-screen overflow-y-auto overflow-x-hidden relative")}>
@@ -42,6 +51,8 @@ const BookDetail: React.FC<BookDetailProps> = ({ onBack }) => {
         onPlayPauseToggle={toggleSequentialReading}
         scrollBlock={scrollBlock}
         onChangeScrollBlock={setScrollBlock}
+        isFastReadingFontEnabled={isFastReadingFontEnabled}
+        onToggleFastReadingFont={() => setIsFastReadingFontEnabled(!isFastReadingFontEnabled)}
       />
       <div
         className={'absolute transition-all duration-100 rounded-md'}

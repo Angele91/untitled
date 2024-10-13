@@ -14,7 +14,7 @@ const BookGrid: FC<BookGridProps> = ({books, onChooseFile, onBookSelect, onBookD
   return (
     <div className={"w-screen h-screen flex flex-col gap-4 p-4"}>
       <DragAndDropInput onChooseFile={onChooseFile}/>
-      <div className={"grid grid-cols-3 gap-4"}>
+      <div className={"grid grid-cols-2 md:grid-cols-3 gap-4"}>
         {books.map((book, index) => (
           <BookCard
             book={book}

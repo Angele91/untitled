@@ -1,6 +1,11 @@
 import {RefObject, useEffect, useState} from 'react';
 
-export const useWordHighlight = (contentRef: RefObject<HTMLDivElement>, focusedWordIndex: number) => {
+interface UseWordHighlightProps {
+  contentRef: RefObject<HTMLDivElement>;
+  focusedWordIndex: number;
+}
+
+export const useWordHighlight = ({contentRef, focusedWordIndex}: UseWordHighlightProps) => {
   const [focusedWordCoords, setFocusedWordCoords] = useState<{ top: number; left: number; width: number; height: number } | null>(null);
 
   useEffect(() => {

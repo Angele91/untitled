@@ -30,7 +30,8 @@ export const ScrollBlockSelector: React.FC<{
           {blockOptions.map((option) => (
             <button
               key={option.value}
-              onClick={() => {
+              onClick={(event) => {
+                event.stopPropagation();
                 onBlockChange(option.value);
                 onToggle();
               }}

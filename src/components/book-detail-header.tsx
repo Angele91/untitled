@@ -54,54 +54,56 @@ const BookDetailHeader: React.FC<BookHeaderProps> = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
 
-  const headerOptions: HeaderOption[] = useMemo(() => [
-    {
-      id: 'fontSize',
-      label: 'Font Size',
-      component: ({isOpen, onToggle}) => (
-        <FontSizeSelector
-          isOpen={isOpen}
-          onToggle={onToggle}
-          currentSize={fontSize}
-          onSizeChange={onChangeFontSize}
-        />
-      ),
-    },
-    {
-      id: 'pace',
-      label: 'Reading Pace',
-      component: ({isOpen, onToggle}) => (
-        <PaceSelector
-          isOpen={isOpen}
-          onToggle={onToggle}
-          currentPace={pace}
-          onPaceChange={onChangePace}
-        />
-      ),
-    },
-    {
-      id: 'scrollBlock',
-      label: 'Scroll Block',
-      component: ({isOpen, onToggle}) => (
-        <ScrollBlockSelector
-          isOpen={isOpen}
-          onToggle={onToggle}
-          currentBlock={scrollBlock}
-          onBlockChange={onChangeScrollBlock}
-        />
-      ),
-    },
-    {
-      id: 'fastReadingFont',
-      label: 'Fast Reading Font',
-      component: () => (
-        <FastReadingFontSwitch
-          isEnabled={isFastReadingFontEnabled}
-          onToggle={onToggleFastReadingFont}
-        />
-      ),
-    },
-  ], [
+  const headerOptions: HeaderOption[] = useMemo(() => {
+    return [
+      {
+        id: 'fontSize',
+        label: 'Font Size',
+        component: ({isOpen, onToggle}) => (
+          <FontSizeSelector
+            isOpen={isOpen}
+            onToggle={onToggle}
+            currentSize={fontSize}
+            onSizeChange={onChangeFontSize}
+          />
+        ),
+      },
+      {
+        id: 'pace',
+        label: 'Reading Pace',
+        component: ({isOpen, onToggle}) => (
+          <PaceSelector
+            isOpen={isOpen}
+            onToggle={onToggle}
+            currentPace={pace}
+            onPaceChange={onChangePace}
+          />
+        ),
+      },
+      {
+        id: 'scrollBlock',
+        label: 'Scroll Block',
+        component: ({isOpen, onToggle}) => (
+          <ScrollBlockSelector
+            isOpen={isOpen}
+            onToggle={onToggle}
+            currentBlock={scrollBlock}
+            onBlockChange={onChangeScrollBlock}
+          />
+        ),
+      },
+      {
+        id: 'fastReadingFont',
+        label: 'Fast Reading Font',
+        component: () => (
+          <FastReadingFontSwitch
+            isEnabled={isFastReadingFontEnabled}
+            onToggle={onToggleFastReadingFont}
+          />
+        ),
+      },
+    ];
+  }, [
     fontSize,
     onChangeFontSize,
     pace,

@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import {ScrollBlockOption} from "../components/scroll-block-selector.tsx";
 import {delayConfig} from "../lib/constants.ts";
 import {getNextWord} from "../lib/textProcessing.tsx";
@@ -69,7 +69,9 @@ export const useSequentialReading = (
     };
   }, [focusWordPace, scrollBlock, sequentialReadingEnabled]);
 
-  const toggleSequentialReading = () => setSequentialReadingEnabled(prev => !prev);
+  const toggleSequentialReading = useMemo(() => () => {
+    setSequentialReadingEnabled((prev) => !prev);
+  }, []);
 
   return { focusedWordIndex, sequentialReadingEnabled, setSequentialReadingEnabled, toggleSequentialReading };
 };

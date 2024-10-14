@@ -1,4 +1,4 @@
-import React, {useContext, useRef, useState} from 'react';
+import React, {useCallback, useContext, useRef, useState} from 'react';
 import {AppContext} from "../App.tsx";
 import BookDetailHeader from "./book-detail-header.tsx";
 import {useLocalStorage} from "usehooks-ts";
@@ -38,6 +38,8 @@ const BookDetail: React.FC<BookDetailProps> = ({onBack}) => {
     fastReadingFontPercentage: 0.45,
   });
 
+  const onToggleFastReadingFont = useCallback(() => setIsFastReadingFontEnabled(!isFastReadingFontEnabled), [isFastReadingFontEnabled, setIsFastReadingFontEnabled]);
+
   return (
     <div className={twMerge("w-screen h-screen overflow-y-auto overflow-x-hidden relative")}>
       <BookDetailHeader
@@ -52,7 +54,7 @@ const BookDetail: React.FC<BookDetailProps> = ({onBack}) => {
         scrollBlock={scrollBlock}
         onChangeScrollBlock={setScrollBlock}
         isFastReadingFontEnabled={isFastReadingFontEnabled}
-        onToggleFastReadingFont={() => setIsFastReadingFontEnabled(!isFastReadingFontEnabled)}
+        onToggleFastReadingFont={onToggleFastReadingFont}
       />
       {sequentialReadingEnabled && (
         <div

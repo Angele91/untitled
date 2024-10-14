@@ -1,5 +1,5 @@
 import './App.css';
-import {ChangeEventHandler, createContext} from 'react';
+import {ChangeEventHandler, createContext, useCallback} from 'react';
 import {Book, parseBook} from './lib/epub';
 import BookGrid from './components/book-grid';
 import BookDetail from './components/book-detail';
@@ -42,6 +42,8 @@ function App() {
     db.books.delete(book.id);
   };
 
+  const onBack = useCallback(() => setSelectedBook(null), [setSelectedBook]);
+
   return (
     <AppContext.Provider value={{
       books: books ?? [],
@@ -50,7 +52,7 @@ function App() {
     }}>
       {selectedBook ? (
         <BookDetail
-          onBack={() => setSelectedBook(null)}
+          onBack={onBack}
         />
       ) : (
         <BookGrid

@@ -62,6 +62,7 @@ export const useMarkdownRenderer = ({
   }) as MarkdownToJSX.Options, [spanBoldPercentage, selectedBook, fontSize]);
 
   const memoizedChapters = useMemo(() => {
+    console.log('Recalculating chapters');
     return selectedBook.chapters.map((chapter: Chapter, index: number) => (
       <MemoizedMarkdown
         key={`chapter-${index}`}

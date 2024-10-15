@@ -112,11 +112,21 @@ export const useSequentialReading = () => {
     const lastReadingPosition = readingPositions[selectedBook.id]
     if (lastReadingPosition) {
       setFocusedWordIndex(lastReadingPosition)
+      focusedWordIndexRef.current = lastReadingPosition
+    } else {
+      setFocusedWordIndex(0)
+      focusedWordIndexRef.current = 0
     }
   }, [
     selectedBook.id,
     readingPositions
   ]);
+
+  // on mount, scrolls into view the focused word
+  useEffect(() => {
+    const focusedWord = document.getElementById(`word-${focusedWordIndex}`);
+    focusedWord?.scrollIntoView({behavior: 'smooth', block: scrollBlock, inline: 'nearest'});
+  }, [focusedWordIndex, scrollBlock]);
 
   const startReadingFrom = (wordIndex: number) => {
     setFocusedWordIndex(wordIndex);

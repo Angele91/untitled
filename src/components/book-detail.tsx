@@ -64,13 +64,14 @@ const BookDetail: React.FC<BookDetailProps> = ({onBack}) => {
 
       {sequentialReadingEnabled && (
         <div
-          className={'absolute transition-all duration-100 rounded-md'}
+          className={'absolute transition-all duration-100'}
           style={{
             top: focusedWordCoords?.top ?? 0,
             left: (focusedWordCoords?.left ?? 0) - 4,
             width: (focusedWordCoords?.width ?? 0) + 8,
             height: (focusedWordCoords?.height ?? 0) + 4,
-            border: '1px solid red',
+            // border: '1px solid red',
+            borderBottom: '4px solid #f6e05e',
           }}
         />
       )}

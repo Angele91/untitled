@@ -73,5 +73,11 @@ export const useSequentialReading = (
     setSequentialReadingEnabled((prev) => !prev);
   }, []);
 
-  return { focusedWordIndex, sequentialReadingEnabled, setSequentialReadingEnabled, toggleSequentialReading };
+  const startReadingFrom = (wordIndex: number) => {
+    setFocusedWordIndex(wordIndex);
+    focusedWordIndexRef.current = wordIndex;
+    setSequentialReadingEnabled(true);
+  }
+
+  return { focusedWordIndex, sequentialReadingEnabled, setSequentialReadingEnabled, toggleSequentialReading, startReadingFrom };
 };

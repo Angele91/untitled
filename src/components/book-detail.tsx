@@ -7,6 +7,8 @@ import {ScrollBlockOption} from "./scroll-block-selector.tsx";
 import {useSequentialReading} from "../hooks/use-sequential-reading.ts";
 import {useWordHighlight} from "../hooks/use-word-highlight.ts";
 import {useMarkdownRenderer} from "../hooks/use-markdown-renderer.tsx";
+import SequentialReadingBar from "./sequential-reading-bar.tsx";
+import {ContextMenu} from "./context-menu.tsx";
 
 interface BookDetailProps {
   onBack: () => void;
@@ -18,12 +20,16 @@ const BookDetail: React.FC<BookDetailProps> = ({onBack}) => {
   const [focusWordPace, setFocusWordPace] = useState(200);
   const [scrollBlock, setScrollBlock] = useState<ScrollBlockOption>("center");
   const [isFastReadingFontEnabled, setIsFastReadingFontEnabled] = useLocalStorage('isFastReadingFontEnabled', false);
+  const [contextMenuPosition, setContextMenuPosition] = useState({x: 0, y: 0});
+  const [selectedWordIndex, setSelectedWordIndex] = useState<number | null>(null);
+
   const contentRef = useRef<HTMLDivElement | null>(null);
 
   const {
     focusedWordIndex,
     sequentialReadingEnabled,
-    toggleSequentialReading
+    toggleSequentialReading,
+    startReadingFrom,
   } = useSequentialReading(focusWordPace, scrollBlock);
 
   const {focusedWordCoords} = useWordHighlight({
@@ -36,9 +42,25 @@ const BookDetail: React.FC<BookDetailProps> = ({onBack}) => {
     fontSize,
     enableFastReadingFont: isFastReadingFontEnabled,
     fastReadingFontPercentage: 0.45,
+    onWordRightClick: (event, word, wordIndex) => {
+      event.preventDefault();
+      setContextMenuPosition({x: event.clientX, y: event.clientY});
+      setSelectedWordIndex(wordIndex);
+    },
   });
 
   const onToggleFastReadingFont = useCallback(() => setIsFastReadingFontEnabled(!isFastReadingFontEnabled), [isFastReadingFontEnabled, setIsFastReadingFontEnabled]);
+
+  const onRequestReadingFromPoint = (wordIndex) => {
+    startReadingFrom(wordIndex);
+    setContextMenuPosition({x: 0, y: 0});
+    setSelectedWordIndex(null);
+  };
+
+  const onCloseContextMenu = () => {
+    setSelectedWordIndex(null);
+    setContextMenuPosition({x: 0, y: 0});
+  };
 
   return (
     <div className={twMerge("w-screen h-screen overflow-y-auto overflow-x-hidden relative")}>
@@ -68,6 +90,23 @@ const BookDetail: React.FC<BookDetailProps> = ({onBack}) => {
           }}
         />
       )}
+
+      {selectedWordIndex !== null && (
+        <ContextMenu
+          x={contextMenuPosition.x}
+          y={contextMenuPosition.y}
+          onClose={onCloseContextMenu}
+          onRequestReadingFromPoint={() => {
+            console.log(selectedWordIndex);
+            onRequestReadingFromPoint(selectedWordIndex)
+          }}
+        />
+      )}
+
+      <SequentialReadingBar
+        isPaused={!sequentialReadingEnabled}
+        onPlayPauseToggle={toggleSequentialReading}
+      />
       <main className="p-8 flex flex-col gap-8" ref={contentRef}>
         {memoizedChapters}
       </main>

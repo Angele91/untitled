@@ -1,8 +1,7 @@
-import {useMemo, useState, useEffect} from 'react';
+import {useMemo, useState, useEffect, ReactNode, MouseEvent} from 'react';
 import {MarkdownToJSX} from "markdown-to-jsx";
 import {isEmpty, trim} from "lodash";
 import ResourceImage from "../components/resource-image.tsx";
-import {convertWordsToSpans} from "../lib/textProcessing.tsx";
 import {MemoizedMarkdown} from "../components/memoized-markdown.tsx";
 import {Chapter} from "../lib/epub.ts";
 
@@ -11,16 +10,87 @@ interface UseMarkdownRendererProps {
   fontSize: string;
   enableFastReadingFont: boolean;
   fastReadingFontPercentage: number;
+  onWordRightClick: (e: MouseEvent, word: string, wordIndex: number) => void;
 }
 
 export const useMarkdownRenderer = ({
                                       selectedBook,
                                       fontSize,
                                       enableFastReadingFont,
-                                      fastReadingFontPercentage
+                                      fastReadingFontPercentage,
+                                      onWordRightClick,
                                     }: UseMarkdownRendererProps) => {
   const [idsGenerated, setIdsGenerated] = useState(false);
   const spanBoldPercentage = enableFastReadingFont ? fastReadingFontPercentage ?? 45 : 0;
+
+  const onContextMenu = (e: MouseEvent) => {
+    e.preventDefault();
+    let target = e.target as HTMLElement;
+
+    // if target is a strong, use the parent
+    if (target.tagName === 'STRONG') {
+      target = target.parentElement as HTMLElement;
+    }
+
+    const word = target.textContent;
+    const wordIndex = parseInt(target.id.replace('word-', ''), 10);
+
+    if (isNaN(wordIndex)) {
+      console.error('Invalid word index');
+      return;
+    }
+
+    onWordRightClick(e, word, wordIndex);
+  }
+
+
+  const convertWordsToSpans = (children: ReactNode, boldPercentage: number = 0.45) => {
+    const boldPart = (word: string) => {
+      const boldLength = Math.ceil(word.length * boldPercentage);
+      const boldText = word.slice(0, boldLength);
+      const normalText = word.slice(boldLength);
+      return (
+        <>
+          <strong
+            onContextMenu={onContextMenu}
+          >
+            {boldText}
+          </strong>{normalText}
+        </>
+      );
+    };
+
+    if (typeof children === 'string') {
+      return children.split(' ').map((word, index) => {
+        return (
+          <span
+            key={`word-${index}`}
+            onContextMenu={onContextMenu}
+          >
+            {boldPart(word)}{" "}
+          </span>
+        );
+      });
+    }
+
+    if (Array.isArray(children)) {
+      return children.flatMap((child, childIndex) => {
+        if (typeof child === 'string') {
+          return child.split(' ' as any).map((word, wordIndex) => (
+            <span
+              key={`${childIndex}-${wordIndex}`}
+              onContextMenu={onContextMenu}
+            >
+              {boldPart(word)}{" "}
+            </span>
+          ));
+        }
+
+        return child;
+      });
+    }
+    return children;
+  };
 
   const markdownOptions = useMemo(() => ({
     wrapper: 'article',
@@ -39,7 +109,7 @@ export const useMarkdownRenderer = ({
         className="text-base font-semibold my-2">{convertWordsToSpans(children, spanBoldPercentage)}</h5>,
       h6: ({children}) => <h6
         className="text-sm font-semibold my-2">{convertWordsToSpans(children, spanBoldPercentage)}</h6>,
-      img: ({src}) => <ResourceImage book={selectedBook} path={src} />,
+      img: ({src}) => <ResourceImage book={selectedBook} path={src}/>,
       p: ({children}) => (
         <p className="my-4" style={{fontSize}}>
           {convertWordsToSpans(children, spanBoldPercentage)}

@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {delayConfig} from "../lib/constants.ts";
 import {getNextWord} from "../lib/textProcessing.tsx";
 import {useAtom} from "jotai";
@@ -30,6 +30,10 @@ export const useSequentialReading = () => {
   const sequentialReadingAnimationRef = useRef<number | null>(null);
 
   const togglePlaying = useCallback(() => {
+    if (!selectedBook) {
+      console.warn('No book selected, cannot toggle playing state');
+      return;
+    }
     console.debug('Toggling playing state');
     setIsPlaying((prev) => {
       const newVal = !prev;
@@ -109,6 +113,7 @@ export const useSequentialReading = () => {
 
   // restores the last reading position when the component is mounted
   useEffect(() => {
+    if (!selectedBook) return;
     const lastReadingPosition = readingPositions[selectedBook.id]
     if (lastReadingPosition) {
       setFocusedWordIndex(lastReadingPosition)
@@ -118,7 +123,7 @@ export const useSequentialReading = () => {
       focusedWordIndexRef.current = 0
     }
   }, [
-    selectedBook.id,
+    selectedBook?.id,
     readingPositions
   ]);
 
@@ -129,6 +134,11 @@ export const useSequentialReading = () => {
   }, [focusedWordIndex, scrollBlock]);
 
   const startReadingFrom = (wordIndex: number) => {
+    if (!selectedBook) {
+      console.warn('No book selected, cannot start reading from word');
+      return;
+    }
+
     setFocusedWordIndex(wordIndex);
     setIsPlaying(true);
     focusedWordIndexRef.current = wordIndex;

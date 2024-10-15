@@ -1,9 +1,8 @@
-import {FC} from "react";
 import {IoIosFastforward, IoIosPause, IoIosPlay, IoIosRewind} from "react-icons/io";
 import {twMerge} from "tailwind-merge";
 
 
-const SequentialReadingBar: FC = ({
+const SequentialReadingBar = ({
                                     isPaused,
                                     onPlayPauseToggle,
                                   }: {

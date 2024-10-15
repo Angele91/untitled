@@ -4,7 +4,12 @@ import {isEmpty, trim} from "lodash";
 import ResourceImage from "../components/resource-image.tsx";
 import {MemoizedMarkdown} from "../components/memoized-markdown.tsx";
 import {Chapter} from "../lib/epub.ts";
-import {fontSizeAtom, isFastReadingFontEnabledAtom, selectedBookAtom, fastReadingPercentageAtom} from "../state/atoms.ts";
+import {
+  fontSizeAtom,
+  isFastReadingFontEnabledAtom,
+  selectedBookAtom,
+  fastReadingPercentageAtom
+} from "../state/atoms.ts";
 import {useAtomValue} from "jotai";
 
 interface UseMarkdownRendererProps {
@@ -34,7 +39,7 @@ export const useMarkdownRenderer = ({
     const word = target.textContent;
     const wordIndex = parseInt(target.id.replace('word-', ''), 10);
 
-    if (isNaN(wordIndex)) {
+    if (isNaN(wordIndex) || !word) {
       console.error('Invalid word index');
       return;
     }
@@ -108,7 +113,13 @@ export const useMarkdownRenderer = ({
         className="text-base font-semibold my-2">{convertWordsToSpans(children, spanBoldPercentage)}</h5>,
       h6: ({children}) => <h6
         className="text-sm font-semibold my-2">{convertWordsToSpans(children, spanBoldPercentage)}</h6>,
-      img: ({src}) => <ResourceImage book={selectedBook} path={src}/>,
+      img: ({src}) => {
+        if (!selectedBook) {
+          return null;
+        }
+
+        return <ResourceImage book={selectedBook} path={src}/>
+      },
       p: ({children}) => (
         <p className="my-4" style={{fontSize}}>
           {convertWordsToSpans(children, spanBoldPercentage)}
@@ -132,13 +143,13 @@ export const useMarkdownRenderer = ({
 
   const memoizedChapters = useMemo(() => {
     console.log('Recalculating chapters');
-    return selectedBook.chapters.map((chapter: Chapter, index: number) => (
+    return selectedBook?.chapters.map((chapter: Chapter, index: number) => (
       <MemoizedMarkdown
         key={`chapter-${index}`}
         content={chapter.mdContent}
         options={markdownOptions}
       />
-    ));
+    )) ?? [];
   }, [selectedBook, markdownOptions]);
 
   useEffect(() => {

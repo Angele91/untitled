@@ -37,14 +37,14 @@ const BookDetail: React.FC<BookDetailProps> = ({onBack}) => {
   });
 
   const {memoizedChapters} = useMarkdownRenderer({
-    onWordRightClick: (event, word, wordIndex) => {
+    onWordRightClick: (event, _, wordIndex) => {
       event.preventDefault();
       setContextMenuPosition({x: event.clientX, y: event.clientY});
       setSelectedWordIndex(wordIndex);
     },
   });
 
-  const onRequestReadingFromPoint = (wordIndex) => {
+  const onRequestReadingFromPoint = (wordIndex: number) => {
     startReadingFrom(wordIndex);
     setContextMenuPosition({x: 0, y: 0});
     setSelectedWordIndex(null);

@@ -1,8 +1,7 @@
 import React, {useMemo, useState} from 'react';
-import {FaChevronLeft, FaPause, FaPlay} from 'react-icons/fa';
+import {FaChevronLeft} from 'react-icons/fa';
 import {FontSizeSelector} from "./font-size-selector.tsx";
 import {PaceSelector} from "./pace-selector.tsx";
-import {ScrollBlockSelector} from "./scroll-block-selector.tsx";
 import {FastReadingFontSwitch} from "./fast-reading-font-switch.tsx";
 import {useHeaderScroll} from "../hooks/use-header-scroll.tsx";
 import {FaBars} from "react-icons/fa6";
@@ -12,7 +11,6 @@ import {
   focusWordPaceAtom,
   fontSizeAtom,
   isFastReadingFontEnabledAtom,
-  isPlayingAtom,
   scrollBlockAtom
 } from "../state/atoms.ts";
 

@@ -3,20 +3,14 @@ import {ChangeEventHandler, createContext, useCallback} from 'react';
 import {Book, parseBook} from './lib/epub';
 import BookGrid from './components/book-grid';
 import BookDetail from './components/book-detail';
-import {useLocalStorage} from 'usehooks-ts';
 import {useLiveQuery} from "dexie-react-hooks";
 import {db} from "./lib/db.ts";
-
-export const AppContext = createContext({
-  books: [] as Book[] | null,
-  selectedBook: null as Book | null,
-  setSelectedBook: (() => {
-  }) as (book: Book | null) => void,
-});
+import {useAtom} from "jotai";
+import {selectedBookAtom} from "./state/atoms.ts";
 
 function App() {
   const books = useLiveQuery(() => db.books.toArray(), []);
-  const [selectedBook, setSelectedBook] = useLocalStorage<Book | null>('selectedBook', null);
+  const [selectedBook, setSelectedBook] = useAtom(selectedBookAtom);
 
   const onChooseFile: ChangeEventHandler<HTMLInputElement> = async (e) => {
     const files = e.target.files;
@@ -45,11 +39,7 @@ function App() {
   const onBack = useCallback(() => setSelectedBook(null), [setSelectedBook]);
 
   return (
-    <AppContext.Provider value={{
-      books: books ?? [],
-      selectedBook,
-      setSelectedBook,
-    }}>
+    <>
       {selectedBook ? (
         <BookDetail
           onBack={onBack}
@@ -58,11 +48,11 @@ function App() {
         <BookGrid
           books={books ?? []}
           onChooseFile={onChooseFile}
-          onBookSelect={setSelectedBook}
+          onBookSelect={(book) => setSelectedBook(book)}
           onBookDelete={onBookDelete}
         />
       )}
-    </AppContext.Provider>
+    </>
   );
 }
 

@@ -4,22 +4,21 @@ import {isEmpty, trim} from "lodash";
 import ResourceImage from "../components/resource-image.tsx";
 import {MemoizedMarkdown} from "../components/memoized-markdown.tsx";
 import {Chapter} from "../lib/epub.ts";
+import {fontSizeAtom, isFastReadingFontEnabledAtom, selectedBookAtom, fastReadingPercentageAtom} from "../state/atoms.ts";
+import {useAtomValue} from "jotai";
 
 interface UseMarkdownRendererProps {
-  selectedBook: any;
-  fontSize: string;
-  enableFastReadingFont: boolean;
-  fastReadingFontPercentage: number;
   onWordRightClick: (e: MouseEvent, word: string, wordIndex: number) => void;
 }
 
 export const useMarkdownRenderer = ({
-                                      selectedBook,
-                                      fontSize,
-                                      enableFastReadingFont,
-                                      fastReadingFontPercentage,
                                       onWordRightClick,
                                     }: UseMarkdownRendererProps) => {
+  const selectedBook = useAtomValue(selectedBookAtom);
+  const fontSize = useAtomValue(fontSizeAtom);
+  const enableFastReadingFont = useAtomValue(isFastReadingFontEnabledAtom);
+  const fastReadingFontPercentage = useAtomValue(fastReadingPercentageAtom);
+
   const [idsGenerated, setIdsGenerated] = useState(false);
   const spanBoldPercentage = enableFastReadingFont ? fastReadingFontPercentage ?? 45 : 0;
 

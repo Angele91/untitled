@@ -10,7 +10,6 @@ export const useWordHighlight = ({contentRef, focusedWordIndex}: UseWordHighligh
 
   useEffect(() => {
     const updateCoords = () => {
-      console.log('Updating coords');
       const focusedWord = document.getElementById(`word-${focusedWordIndex}`);
       const container = contentRef.current;
 

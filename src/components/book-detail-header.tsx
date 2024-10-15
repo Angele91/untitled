@@ -2,11 +2,19 @@ import React, {useMemo, useState} from 'react';
 import {FaChevronLeft, FaPause, FaPlay} from 'react-icons/fa';
 import {FontSizeSelector} from "./font-size-selector.tsx";
 import {PaceSelector} from "./pace-selector.tsx";
-import {ScrollBlockOption, ScrollBlockSelector} from "./scroll-block-selector.tsx";
+import {ScrollBlockSelector} from "./scroll-block-selector.tsx";
 import {FastReadingFontSwitch} from "./fast-reading-font-switch.tsx";
 import {useHeaderScroll} from "../hooks/use-header-scroll.tsx";
 import {FaBars} from "react-icons/fa6";
 import {twMerge} from "tailwind-merge";
+import {useAtom} from "jotai";
+import {
+  focusWordPaceAtom,
+  fontSizeAtom,
+  isFastReadingFontEnabledAtom,
+  isPlayingAtom,
+  scrollBlockAtom
+} from "../state/atoms.ts";
 
 export interface HeaderOption {
   id: string;
@@ -18,16 +26,6 @@ export interface HeaderOption {
 interface BookHeaderProps {
   title: string;
   onBack: () => void;
-  fontSize: string;
-  onChangeFontSize: (newSize: string) => void;
-  pace: number;
-  onChangePace: (newPace: number) => void;
-  isPlaying: boolean;
-  onPlayPauseToggle: () => void;
-  scrollBlock: ScrollBlockOption;
-  onChangeScrollBlock: (newBlock: ScrollBlockOption) => void;
-  isFastReadingFontEnabled: boolean;
-  onToggleFastReadingFont: () => void;
 }
 
 
@@ -38,21 +36,14 @@ function FaTimes() {
 const BookDetailHeader: React.FC<BookHeaderProps> = ({
                                                        title,
                                                        onBack,
-                                                       fontSize,
-                                                       onChangeFontSize,
-                                                       pace,
-                                                       onChangePace,
-                                                       isPlaying,
-                                                       onPlayPauseToggle,
-                                                       scrollBlock,
-                                                       onChangeScrollBlock,
-                                                       onToggleFastReadingFont,
-                                                       isFastReadingFontEnabled
                                                      }) => {
+  const [fontSize, setFontSize] = useAtom(fontSizeAtom);
+  const [pace, onChangePace] = useAtom(focusWordPaceAtom);
+  const [scrollBlock, onChangeScrollBlock] = useAtom(scrollBlockAtom);
+  const [isFastReadingFontEnabled, setIsFastReadingFontEnabled] = useAtom(isFastReadingFontEnabledAtom);
   const [openOptionId, setOpenOptionId] = useState<string | null>(null);
   const {showHeader} = useHeaderScroll();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
 
   const headerOptions: HeaderOption[] = useMemo(() => {
     return [
@@ -64,7 +55,7 @@ const BookDetailHeader: React.FC<BookHeaderProps> = ({
             isOpen={isOpen}
             onToggle={onToggle}
             currentSize={fontSize}
-            onSizeChange={onChangeFontSize}
+            onSizeChange={setFontSize}
           />
         ),
       },
@@ -80,38 +71,42 @@ const BookDetailHeader: React.FC<BookHeaderProps> = ({
           />
         ),
       },
-      {
-        id: 'scrollBlock',
-        label: 'Scroll Block',
-        component: ({isOpen, onToggle}) => (
-          <ScrollBlockSelector
-            isOpen={isOpen}
-            onToggle={onToggle}
-            currentBlock={scrollBlock}
-            onBlockChange={onChangeScrollBlock}
-          />
-        ),
-      },
+      // Disabled for now, as I can't find a good use case for it
+      // {
+      //   id: 'scrollBlock',
+      //   label: 'Scroll Block',
+      //   component: ({isOpen, onToggle}) => (
+      //     <ScrollBlockSelector
+      //       isOpen={isOpen}
+      //       onToggle={onToggle}
+      //       currentBlock={scrollBlock}
+      //       onBlockChange={onChangeScrollBlock}
+      //     />
+      //   ),
+      // },
       {
         id: 'fastReadingFont',
         label: 'Fast Reading Font',
-        component: () => (
-          <FastReadingFontSwitch
-            isEnabled={isFastReadingFontEnabled}
-            onToggle={onToggleFastReadingFont}
-          />
-        ),
+        component: () => {
+          return (
+            <FastReadingFontSwitch
+              isEnabled={isFastReadingFontEnabled}
+              onToggle={() => {
+                console.debug(`Fast Reading Font Enabled: ${isFastReadingFontEnabled}`);
+                setIsFastReadingFontEnabled(!isFastReadingFontEnabled);
+              }}
+            />
+          );
+        },
       },
     ];
   }, [
     fontSize,
-    onChangeFontSize,
     pace,
     onChangePace,
     scrollBlock,
     onChangeScrollBlock,
     isFastReadingFontEnabled,
-    onToggleFastReadingFont
   ]);
 
   return (
@@ -140,12 +135,6 @@ const BookDetailHeader: React.FC<BookHeaderProps> = ({
           isMobileMenuOpen ? 'opacity-0' : 'opacity-100'
         )}
       >
-        <button
-          onClick={onPlayPauseToggle}
-          className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          {isPlaying ? <FaPause/> : <FaPlay/>}
-        </button>
         <div className="hidden md:flex items-center gap-4">
           {headerOptions.map((option) => (
             <option.component
@@ -183,9 +172,11 @@ const BookDetailHeader: React.FC<BookHeaderProps> = ({
                   className="mb-4 flex gap-2 items-center"
                   id={option.id}
                   onClick={() => {
+                    console.log('test');
                     if (option.id === 'fastReadingFont') {
-                      onToggleFastReadingFont();
+                      setIsFastReadingFontEnabled(!isFastReadingFontEnabled);
                     } else {
+                      console.log('toggle', option.id);
                       setOpenOptionId(openOptionId === option.id ? null : option.id)
                     }
                   }}

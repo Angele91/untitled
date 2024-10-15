@@ -1,7 +1,6 @@
 import React from "react";
 import { FaAlignCenter } from "react-icons/fa";
-
-export type ScrollBlockOption = "start" | "center" | "end" | "nearest";
+import {ScrollBlockOption} from "../state/atoms.ts";
 
 export const ScrollBlockSelector: React.FC<{
   isOpen: boolean;

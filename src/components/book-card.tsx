@@ -48,7 +48,7 @@ const BookCard: FC<BookCardProps> = ({ book, onBookSelect, onDeleteBook }) => {
       />
       <div
         className={twMerge(
-          "transition-all absolute backdrop-blur-sm flex flex-col justify-center items-center bg-black/50 z-10 top-0 left-0 w-full h-full",
+          "transition-all absolute backdrop-blur-sm cursor-pointer flex flex-col justify-center items-center bg-black/50 z-10 top-0 left-0 w-full h-full",
           "opacity-0 group-hover:opacity-100 md:flex hidden"
         )}
       >
@@ -88,7 +88,7 @@ const BookCard: FC<BookCardProps> = ({ book, onBookSelect, onDeleteBook }) => {
 
       {/* Desktop delete button */}
       <button
-        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-colors hidden md:block"
+        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-colors hidden md:block z-[999]"
         onClick={(e) => {
           e.stopPropagation();
           onDeleteBook(book);

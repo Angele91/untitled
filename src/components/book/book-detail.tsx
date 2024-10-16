@@ -9,6 +9,7 @@ import { ContextMenu } from "../utility/context-menu.tsx";
 import { useAtomValue } from "jotai";
 import { selectedBookAtom, wordGroupSizeAtom } from "../../state/atoms.ts";
 import useEyeSaverMode from "../../hooks/useEyeSaverMode";
+import useDarkMode from "../../hooks/useDarkMode";
 
 interface BookDetailProps {
   onBack: () => void;
@@ -21,6 +22,7 @@ const BookDetail: React.FC<BookDetailProps> = ({ onBack }) => {
     null
   );
   const eyeSaverMode = useEyeSaverMode();
+  const darkMode = useDarkMode();
 
   const [contextMenuPosition, setContextMenuPosition] = useState({
     x: 0,
@@ -81,15 +83,16 @@ const BookDetail: React.FC<BookDetailProps> = ({ onBack }) => {
   const currentWordGroup = getCurrentWordGroup(wordGroupSize);
 
   return (
-    <div className="w-screen h-screen overflow-y-auto overflow-x-hidden relative flex flex-col">
+    <div
+      className={twMerge(
+        "w-screen h-screen overflow-y-auto overflow-x-hidden relative flex flex-col",
+        darkMode ? "dark-mode" : "",
+        eyeSaverMode ? "eye-saver-mode" : ""
+      )}
+    >
       <BookDetailHeader title={selectedBook!.title} onBack={onBack} />
 
-      <div
-        className={twMerge(
-          "flex-grow overflow-y-auto pb-24",
-          eyeSaverMode ? "eye-saver-mode" : ""
-        )}
-      >
+      <div className="flex-grow overflow-y-auto pb-24">
         {sequentialReadingEnabled &&
           focusedWordsCoords.map(
             (coords, index) =>

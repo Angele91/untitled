@@ -13,7 +13,8 @@ import { FontSizeSelector } from "../reading/font-size-selector";
 import { PaceSelector } from "../reading/pace-selector";
 import { FastReadingFontSwitch } from "../reading/fast-reading-font-switch";
 import ChapterDrawer from "./chapter-drawer.tsx";
-import {truncate} from "lodash";
+import { truncate } from "lodash";
+import DarkModeToggle from "../reading/DarkModeToggle";
 
 export interface HeaderOption {
   id: string;
@@ -41,7 +42,6 @@ const BookDetailHeader: React.FC<BookHeaderProps> = ({ title, onBack }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isChapterDrawerOpen, setIsChapterDrawerOpen] = useState(false);
 
-
   const headerOptions: HeaderOption[] = useMemo(() => {
     return [
       {
@@ -68,19 +68,6 @@ const BookDetailHeader: React.FC<BookHeaderProps> = ({ title, onBack }) => {
           />
         ),
       },
-      // Disabled for now, as I can't find a good use case for it
-      // {
-      //   id: 'scrollBlock',
-      //   label: 'Scroll Block',
-      //   component: ({isOpen, onToggle}) => (
-      //     <ScrollBlockSelector
-      //       isOpen={isOpen}
-      //       onToggle={onToggle}
-      //       currentBlock={scrollBlock}
-      //       onBlockChange={onChangeScrollBlock}
-      //     />
-      //   ),
-      // },
       {
         id: "fastReadingFont",
         label: "Fast Reading Font",
@@ -97,6 +84,11 @@ const BookDetailHeader: React.FC<BookHeaderProps> = ({ title, onBack }) => {
             />
           );
         },
+      },
+      {
+        id: "darkMode",
+        label: "Dark Mode",
+        component: () => <DarkModeToggle />,
       },
     ];
   }, [
@@ -118,19 +110,21 @@ const BookDetailHeader: React.FC<BookHeaderProps> = ({ title, onBack }) => {
     >
       <div className="flex items-center gap-8">
         <button className="text-2xl hover:text-gray-600" onClick={onBack}>
-          <FaChevronLeft/>
+          <FaChevronLeft />
         </button>
         <button
           className="text-2xl hover:text-gray-600"
           onClick={() => setIsChapterDrawerOpen(!isChapterDrawerOpen)}
         >
-          <FaBars/>
+          <FaBars />
         </button>
-        <span className="text-lg">{truncate(title, {
-          length: 25,
-          omission: '...',
-          separator: ' ',
-        })}</span>
+        <span className="text-lg">
+          {truncate(title, {
+            length: 25,
+            omission: "...",
+            separator: " ",
+          })}
+        </span>
       </div>
 
       <ChapterDrawer
@@ -159,7 +153,7 @@ const BookDetailHeader: React.FC<BookHeaderProps> = ({ title, onBack }) => {
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="md:hidden text-2xl"
         >
-          {isMobileMenuOpen ? <FaTimes/> : <FaBars/>}
+          {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
         </button>
       </div>
 

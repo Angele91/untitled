@@ -8,11 +8,14 @@ import { db } from "./lib/db.ts";
 import { useAtom } from "jotai";
 import { selectedBookAtom } from "./state/atoms.ts";
 import useEyeSaverMode from "./hooks/useEyeSaverMode.ts";
+import useDarkMode from "./hooks/useDarkMode.ts";
+import MainHeader from "./components/MainHeader";
 
 function App() {
   const books = useLiveQuery(() => db.books.toArray(), []);
   const [selectedBook, setSelectedBook] = useAtom(selectedBookAtom);
   const eyeSaverMode = useEyeSaverMode();
+  const darkMode = useDarkMode();
 
   const onChooseFile: ChangeEventHandler<HTMLInputElement> = async (e) => {
     const files = e.target.files;
@@ -41,16 +44,23 @@ function App() {
   const onBack = useCallback(() => setSelectedBook(null), [setSelectedBook]);
 
   return (
-    <div className={`${eyeSaverMode ? "eye-saver-mode" : ""}`}>
+    <div
+      className={`${eyeSaverMode ? "eye-saver-mode" : ""} ${
+        darkMode ? "dark-mode" : ""
+      }`}
+    >
       {selectedBook ? (
         <BookDetail onBack={onBack} />
       ) : (
-        <BookGrid
-          books={books ?? []}
-          onChooseFile={onChooseFile}
-          onBookSelect={(book) => setSelectedBook(book)}
-          onBookDelete={onBookDelete}
-        />
+        <>
+          <MainHeader />
+          <BookGrid
+            books={books ?? []}
+            onChooseFile={onChooseFile}
+            onBookSelect={(book) => setSelectedBook(book)}
+            onBookDelete={onBookDelete}
+          />
+        </>
       )}
     </div>
   );

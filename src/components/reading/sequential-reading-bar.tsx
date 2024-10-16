@@ -8,6 +8,7 @@ import { SettingsButton } from "./settings-button.tsx";
 import { WordGroup } from "./word-group.tsx";
 import { ControlButtons } from "./control-buttons.tsx";
 import { SettingsModal } from "./settings-modal.tsx";
+import useDarkMode from "../../hooks/useDarkMode";
 
 const SequentialReadingBar: React.FC<{
   isPaused: boolean;
@@ -29,10 +30,17 @@ const SequentialReadingBar: React.FC<{
   const [wordGroupSize, setWordGroupSize] = useAtom(wordGroupSizeAtom);
   const [fastReadingPercentage] = useAtom(fastReadingPercentageAtom);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const darkMode = useDarkMode();
 
   return (
     <>
-      <div className="transition-all fixed bottom-0 left-0 w-full pt-2 pb-1 flex items-center justify-between flex-col bg-white border-t border-t-gray-200 shadow-md z-10">
+      <div
+        className={`transition-all fixed bottom-0 left-0 w-full pt-2 pb-1 flex items-center justify-between flex-col ${
+          darkMode
+            ? "bg-gray-800 border-t-gray-700"
+            : "bg-white border-t-gray-200"
+        } border-t shadow-md z-10`}
+      >
         <div className="w-full flex justify-between px-4 mb-2 h-full">
           <SettingsButton onClick={() => setIsSettingsModalOpen(true)} />
 

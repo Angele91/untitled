@@ -1,0 +1,69 @@
+:root {
+  --background-color: #ffffff;
+  --text-color: #000000;
+  --link-color: #0000ff;
+  --heading-color: #333333;
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+a {
+  color: var(--link-color);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--heading-color);
+}
+
+.eye-saver-mode {
+  --background-color: #f4e9d9;
+  --text-color: #3c3c3c;
+  --link-color: #1a5f7a;
+  --heading-color: #2c2c2c;
+  filter: brightness(0.95) sepia(0.2);
+}
+
+.dark-mode {
+  --background-color: #1a1a1a;
+  --text-color: #e0e0e0;
+  --link-color: #4da6ff;
+  --heading-color: #ffffff;
+}
+
+.dark-mode.eye-saver-mode {
+  --background-color: #2a2a2a;
+  --text-color: #d0d0d0;
+  --link-color: #6db6ff;
+  --heading-color: #f0f0f0;
+  filter: brightness(0.9) sepia(0.1);
+}
+
+.dark-mode img,
+.dark-mode video {
+  filter: brightness(0.8) contrast(1.2);
+}
+
+/* Specific styles for book content */
+.dark-mode p,
+.dark-mode ul,
+.dark-mode ol {
+  color: var(--text-color);
+}
+
+.dark-mode h1,
+.dark-mode h2,
+.dark-mode h3,
+.dark-mode h4,
+.dark-mode h5,
+.dark-mode h6 {
+  color: var(--heading-color);
+}
+
+/* Smooth transition for mode changes */
+* {
+  transition: background-color 0.3s, color 0.3s, filter 0.3s;
+}

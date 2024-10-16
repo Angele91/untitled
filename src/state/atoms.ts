@@ -40,5 +40,8 @@ export const isSequentialReadingEnabledAtom = atomWithStorage(
 
 export const wordGroupSizeAtom = atomWithStorage<number>("wordGroupSize", 1);
 
-// New atom for Eye Saver Mode
+// Atom for Eye Saver Mode
 export const eyeSaverModeAtom = atomWithStorage<boolean>("eyeSaverMode", false);
+
+// New atom for Dark Mode
+export const darkModeAtom = atomWithStorage<boolean>("darkMode", false);

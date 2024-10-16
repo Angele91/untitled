@@ -7,7 +7,7 @@ import { useMarkdownRenderer } from "../../hooks/use-markdown-renderer.tsx";
 import SequentialReadingBar from "../reading/sequential-reading-bar.tsx";
 import { ContextMenu } from "../utility/context-menu.tsx";
 import { useAtomValue } from "jotai";
-import { selectedBookAtom } from "../../state/atoms.ts";
+import { selectedBookAtom, wordGroupSizeAtom } from "../../state/atoms.ts";
 
 interface BookDetailProps {
   onBack: () => void;
@@ -15,6 +15,7 @@ interface BookDetailProps {
 
 const BookDetail: React.FC<BookDetailProps> = ({ onBack }) => {
   const selectedBook = useAtomValue(selectedBookAtom);
+  const wordGroupSize = useAtomValue(wordGroupSizeAtom);
   const [selectedWordIndex, setSelectedWordIndex] = useState<number | null>(
     null
   );
@@ -36,9 +37,10 @@ const BookDetail: React.FC<BookDetailProps> = ({ onBack }) => {
     goBackwards,
     startContinuousMovement,
     stopContinuousMovement,
+    getCurrentWordGroup,
   } = useSequentialReading();
 
-  const { focusedWordCoords } = useWordHighlight({
+  const { focusedWordsCoords } = useWordHighlight({
     contentRef,
     focusedWordIndex,
   });
@@ -74,6 +76,8 @@ const BookDetail: React.FC<BookDetailProps> = ({ onBack }) => {
     setContextMenuPosition({ x: 0, y: 0 });
   };
 
+  const currentWordGroup = getCurrentWordGroup(wordGroupSize);
+
   return (
     <div
       className={twMerge(
@@ -82,18 +86,23 @@ const BookDetail: React.FC<BookDetailProps> = ({ onBack }) => {
     >
       <BookDetailHeader title={selectedBook!.title} onBack={onBack} />
 
-      {sequentialReadingEnabled && (
-        <div
-          className={"absolute transition-all duration-100"}
-          style={{
-            top: focusedWordCoords?.top ?? 0,
-            left: (focusedWordCoords?.left ?? 0) - 4,
-            width: (focusedWordCoords?.width ?? 0) + 8,
-            height: (focusedWordCoords?.height ?? 0) + 4,
-            borderBottom: "4px solid #f6e05e",
-          }}
-        />
-      )}
+      {sequentialReadingEnabled &&
+        focusedWordsCoords.map(
+          (coords, index) =>
+            coords && (
+              <div
+                key={index}
+                className={"absolute transition-all duration-100"}
+                style={{
+                  top: coords.top,
+                  left: coords.left - 4,
+                  width: coords.width + 8,
+                  height: coords.height + 4,
+                  borderBottom: "4px solid #f6e05e",
+                }}
+              />
+            )
+        )}
 
       {selectedWordIndex !== null && (
         <ContextMenu
@@ -101,7 +110,7 @@ const BookDetail: React.FC<BookDetailProps> = ({ onBack }) => {
           y={contextMenuPosition.y}
           onClose={onCloseContextMenu}
           onRequestReadingFromPoint={() => {
-            onRequestReadingFromPoint(selectedWordIndex);
+            onRequestReadingFromPoint(selectedWordIndex!);
           }}
         />
       )}
@@ -114,6 +123,7 @@ const BookDetail: React.FC<BookDetailProps> = ({ onBack }) => {
           onGoBackwards={goBackwards}
           startContinuousMovement={startContinuousMovement}
           stopContinuousMovement={stopContinuousMovement}
+          currentWordGroup={currentWordGroup}
         />
       )}
 

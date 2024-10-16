@@ -1,38 +1,62 @@
-import {RefObject, useEffect, useState} from 'react';
+import { RefObject, useEffect, useState } from "react";
+import { useAtomValue } from "jotai";
+import { wordGroupSizeAtom } from "../state/atoms";
+import { getNextWord } from "../lib/textProcessing";
 
 interface UseWordHighlightProps {
   contentRef: RefObject<HTMLDivElement>;
   focusedWordIndex: number;
 }
 
-export const useWordHighlight = ({contentRef, focusedWordIndex}: UseWordHighlightProps) => {
-  const [focusedWordCoords, setFocusedWordCoords] = useState<{ top: number; left: number; width: number; height: number } | null>(null);
+export const useWordHighlight = ({
+  contentRef,
+  focusedWordIndex,
+}: UseWordHighlightProps) => {
+  const wordGroupSize = useAtomValue(wordGroupSizeAtom);
+  const [focusedWordsCoords, setFocusedWordsCoords] = useState<
+    Array<{ top: number; left: number; width: number; height: number } | null>
+  >([]);
 
   useEffect(() => {
     const updateCoords = () => {
-      const focusedWord = document.getElementById(`word-${focusedWordIndex}`);
       const container = contentRef.current;
-
-      if (!focusedWord || !container) {
-        setFocusedWordCoords(null);
+      if (!container) {
+        setFocusedWordsCoords([]);
         return;
       }
 
       const containerRect = container.getBoundingClientRect();
-      const wordRect = focusedWord.getBoundingClientRect();
+      const coords: Array<{
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+      } | null> = [];
 
-      setFocusedWordCoords({
-        top: wordRect.top - containerRect.top + container.scrollTop,
-        left: wordRect.left - containerRect.left + container.scrollLeft,
-        width: wordRect.width,
-        height: wordRect.height
-      });
+      let currentWord = document.getElementById(`word-${focusedWordIndex}`);
+      for (let i = 0; i < wordGroupSize; i++) {
+        if (currentWord) {
+          const wordRect = currentWord.getBoundingClientRect();
+          coords.push({
+            top: wordRect.top - containerRect.top + container.scrollTop,
+            left: wordRect.left - containerRect.left + container.scrollLeft,
+            width: wordRect.width,
+            height: wordRect.height,
+          });
+          const { element } = getNextWord(currentWord);
+          currentWord = element;
+        } else {
+          coords.push(null);
+        }
+      }
+
+      setFocusedWordsCoords(coords);
     };
 
     updateCoords();
-    window.addEventListener('resize', updateCoords);
-    return () => window.removeEventListener('resize', updateCoords);
-  }, [focusedWordIndex, contentRef]);
+    window.addEventListener("resize", updateCoords);
+    return () => window.removeEventListener("resize", updateCoords);
+  }, [focusedWordIndex, contentRef, wordGroupSize]);
 
-  return { focusedWordCoords };
+  return { focusedWordsCoords };
 };

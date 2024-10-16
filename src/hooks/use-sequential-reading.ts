@@ -9,6 +9,7 @@ import {
   lastReadingPositionsAtom,
   scrollBlockAtom,
   selectedBookAtom,
+  wordGroupSizeAtom,
 } from "../state/atoms.ts";
 import { useAtomValue } from "jotai";
 
@@ -19,9 +20,8 @@ export const useSequentialReading = () => {
   const selectedBook = useAtomValue(selectedBookAtom);
   const scrollBlock = useAtomValue(scrollBlockAtom);
   const focusWordPace = useAtomValue(focusWordPaceAtom);
-  const [readingPositions, setReadingPositions] = useAtom(
-    lastReadingPositionsAtom
-  );
+  const wordGroupSize = useAtomValue(wordGroupSizeAtom);
+  const [readingPositions, setReadingPositions] = useAtom(lastReadingPositionsAtom);
 
   const [sequentialReadingEnabled, setSequentialReadingEnabled] = useAtom(
     isSequentialReadingEnabledAtom
@@ -40,6 +40,7 @@ export const useSequentialReading = () => {
       console.warn("No book selected, cannot toggle playing state");
       return;
     }
+
     console.debug("Toggling playing state");
     setIsPlaying((prev) => {
       const newVal = !prev;
@@ -73,54 +74,70 @@ export const useSequentialReading = () => {
   useEffect(() => {
     let isMounted = true;
 
-    const animateNextWord = async () => {
+    const animateNextWordGroup = async () => {
       if (!isMounted) return;
 
       clearTimeout(sequentialReadingAnimationRef.current!);
 
-      const focusedWord = document.getElementById(
+      const currentWord = document.getElementById(
         `word-${focusedWordIndexRef.current}`
       );
-      const {
-        element: nextWord,
-        punctuation,
-        isParagraphEnd,
-      } = getNextWord(focusedWord);
+      let nextWord = currentWord;
+      let isParagraphEnd = false;
+      let maxPunctuation = "";
+      let totalDelay = 0;
 
-      if (!nextWord) {
+      for (let i = 0; i < wordGroupSize; i++) {
+        const {
+          element,
+          punctuation,
+          isParagraphEnd: isEnd,
+        } = getNextWord(nextWord);
+        if (!element) break;
+        nextWord = element;
+        isParagraphEnd = isParagraphEnd || isEnd;
+        if (
+          delayConfig[punctuation as keyof typeof delayConfig] >
+          delayConfig[maxPunctuation as keyof typeof delayConfig]
+        ) {
+          maxPunctuation = punctuation;
+        }
+
+        const wordDelay =
+          focusWordPace +
+          (isEnd
+            ? delayConfig.paragraph
+            : delayConfig[punctuation as keyof typeof delayConfig] ||
+              delayConfig.default);
+        totalDelay += wordDelay;
+      }
+
+      if (nextWord === currentWord || !nextWord) {
         console.warn("No next word found, stopping sequential reading");
         setIsPlaying(false);
         return;
       }
 
-      const delayForPunctuation =
-        delayConfig[punctuation as keyof typeof delayConfig];
-      const delay =
-        focusWordPace +
-        (isParagraphEnd
-          ? delayConfig.paragraph
-          : delayForPunctuation || delayConfig.default);
-
-      const nextWordId = parseInt(nextWord.id.split("-")[1]);
-
-      await new Promise((resolve) => setTimeout(resolve, delay));
+      // Use the total delay for the entire word group
+      await new Promise((resolve) => setTimeout(resolve, totalDelay));
 
       nextWord.scrollIntoView({
         behavior: "smooth",
         block: scrollBlock,
         inline: "nearest",
       });
+      const nextWordId = parseInt(nextWord.id.split("-")[1]);
       setFocusedWordIndex(nextWordId);
       focusedWordIndexRef.current = nextWordId;
 
       if (isMounted) {
-        animateNextWord();
+        animateNextWordGroup();
       }
     };
 
     if (isPlaying && sequentialReadingEnabled) {
       console.debug("Starting sequential reading");
-      animateNextWord();
+      animateNextWordGroup();
     } else {
       console.debug("Stopping sequential reading");
       clearTimeout(sequentialReadingAnimationRef.current!);
@@ -136,46 +153,27 @@ export const useSequentialReading = () => {
     isPlaying,
     sequentialReadingEnabled,
     setIsPlaying,
+    wordGroupSize,
   ]);
 
-  // restores the last reading position when the component is mounted
-  useEffect(() => {
-    if (!selectedBook) return;
-    const lastReadingPosition = readingPositions[selectedBook.id];
-    if (lastReadingPosition) {
-      setFocusedWordIndex(lastReadingPosition);
-      focusedWordIndexRef.current = lastReadingPosition;
-    } else {
-      setFocusedWordIndex(0);
-      focusedWordIndexRef.current = 0;
-    }
-  }, [selectedBook?.id, readingPositions]);
+  const startReadingFrom = useCallback(
+    (wordIndex: number) => {
+      if (!selectedBook) {
+        console.warn("No book selected, cannot start reading from word");
+        return;
+      }
 
-  // on mount, scrolls into view the focused word
-  useEffect(() => {
-    const focusedWord = document.getElementById(`word-${focusedWordIndex}`);
-    focusedWord?.scrollIntoView({
-      behavior: "smooth",
-      block: scrollBlock,
-      inline: "nearest",
-    });
-  }, [focusedWordIndex, scrollBlock]);
+      setFocusedWordIndex(wordIndex);
+      setIsPlaying(true);
+      focusedWordIndexRef.current = wordIndex;
 
-  const startReadingFrom = (wordIndex: number) => {
-    if (!selectedBook) {
-      console.warn("No book selected, cannot start reading from word");
-      return;
-    }
-
-    setFocusedWordIndex(wordIndex);
-    setIsPlaying(true);
-    focusedWordIndexRef.current = wordIndex;
-
-    setReadingPositions((prev) => ({
-      ...prev,
-      [selectedBook.id]: wordIndex,
-    }));
-  };
+      setReadingPositions((prev) => ({
+        ...prev,
+        [selectedBook.id]: wordIndex,
+      }));
+    },
+    [selectedBook, setIsPlaying, setReadingPositions]
+  );
 
   const moveWord = useCallback(
     (direction: "forward" | "backward", steps: number = 1) => {
@@ -186,7 +184,7 @@ export const useSequentialReading = () => {
       );
       let newWord = currentWord;
 
-      for (let i = 0; i < steps; i++) {
+      for (let i = 0; i < steps * wordGroupSize; i++) {
         const { element: nextWord } =
           direction === "forward"
             ? getNextWord(newWord)
@@ -214,7 +212,7 @@ export const useSequentialReading = () => {
         }));
       }
     },
-    [scrollBlock, selectedBook, setReadingPositions]
+    [scrollBlock, selectedBook, setReadingPositions, wordGroupSize]
   );
 
   const goAhead = useCallback(() => {
@@ -231,7 +229,7 @@ export const useSequentialReading = () => {
     (direction: "forward" | "backward") => {
       setIsPlaying(false);
       if (continuousMovementRef.current) {
-        clearInterval(continuousMovementRef.current);
+        clearInterval(continuousMovementRef.current!);
       }
 
       const move = () => moveWord(direction, MANUAL_SPEED_MULTIPLIER);
@@ -246,10 +244,39 @@ export const useSequentialReading = () => {
 
   const stopContinuousMovement = useCallback(() => {
     if (continuousMovementRef.current) {
-      clearInterval(continuousMovementRef.current);
+      clearInterval(continuousMovementRef.current!);
       continuousMovementRef.current = null;
     }
   }, []);
+
+  const getCurrentWordGroup = useCallback(
+    (size: number) => {
+      const words: string[] = [];
+      let currentWord = document.getElementById(`word-${focusedWordIndex}`);
+
+      for (let i = 0; i < size; i++) {
+        if (currentWord) {
+          words.push(currentWord.textContent || "");
+          const { element } = getNextWord(currentWord);
+          currentWord = element as HTMLElement;
+        } else {
+          break;
+        }
+      }
+
+      return words.join(" ");
+    },
+    [focusedWordIndex]
+  );
+
+  // restore the readingPosition when the book is changed
+  useEffect(() => {
+    if (selectedBook) {
+      const newWordIndex = readingPositions[selectedBook.id] || 0;
+      setFocusedWordIndex(newWordIndex);
+      focusedWordIndexRef.current = newWordIndex;
+    }
+  }, [selectedBook, readingPositions]);
 
   return {
     focusedWordIndex,
@@ -262,5 +289,7 @@ export const useSequentialReading = () => {
     goBackwards,
     startContinuousMovement,
     stopContinuousMovement,
+    wordGroupSize,
+    getCurrentWordGroup,
   };
 };

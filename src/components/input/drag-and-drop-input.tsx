@@ -31,6 +31,7 @@ const DragAndDropInput: FC<DragAndDropInputProps> = ({ onChooseFile }) => {
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
+      onClick={() => document.getElementById('fileInput')?.click()}
     >
       <input
         type="file"

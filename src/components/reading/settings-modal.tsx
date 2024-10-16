@@ -1,7 +1,8 @@
 import * as Yup from "yup";
 import Modal from "../utility/modal.tsx";
-import {Field, Form, Formik, FormikHelpers} from "formik";
+import { Field, Form, Formik, FormikHelpers } from "formik";
 import React from "react";
+import EyeSaverModeToggle from "./EyeSaverModeToggle";
 
 const SettingsSchema = Yup.object().shape({
   wordGroupSize: Yup.number()
@@ -14,27 +15,31 @@ interface SettingsFormValues {
   wordGroupSize: number;
 }
 
-export const SettingsModal = ({isOpen, onClose, wordGroupSize, setWordGroupSize}: {
+export const SettingsModal = ({
+  isOpen,
+  onClose,
+  wordGroupSize,
+  setWordGroupSize,
+}: {
   isOpen: boolean;
   onClose: () => void;
   wordGroupSize: number;
   setWordGroupSize: (value: number) => void;
 }) => (
-  <Modal
-    isOpen={isOpen}
-    onClose={onClose}
-    title="Reading Settings"
-  >
+  <Modal isOpen={isOpen} onClose={onClose} title="Reading Settings">
     <Formik
-      initialValues={{wordGroupSize}}
+      initialValues={{ wordGroupSize }}
       validationSchema={SettingsSchema}
-      onSubmit={(values: SettingsFormValues, {setSubmitting}: FormikHelpers<SettingsFormValues>) => {
+      onSubmit={(
+        values: SettingsFormValues,
+        { setSubmitting }: FormikHelpers<SettingsFormValues>
+      ) => {
         setWordGroupSize(values.wordGroupSize);
         setSubmitting(false);
         onClose();
       }}
     >
-      {({errors, touched, isSubmitting}) => (
+      {({ errors, touched, isSubmitting }) => (
         <Form className="flex flex-col items-start">
           <div className="flex items-center mb-4">
             <label htmlFor="wordGroupSize" className="text-sm mr-2">
@@ -52,6 +57,9 @@ export const SettingsModal = ({isOpen, onClose, wordGroupSize, setWordGroupSize}
               {errors.wordGroupSize}
             </div>
           ) : null}
+          <div className="mb-4">
+            <EyeSaverModeToggle />
+          </div>
           <button
             type="submit"
             disabled={isSubmitting}

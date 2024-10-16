@@ -7,10 +7,12 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "./lib/db.ts";
 import { useAtom } from "jotai";
 import { selectedBookAtom } from "./state/atoms.ts";
+import useEyeSaverMode from "./hooks/useEyeSaverMode.ts";
 
 function App() {
   const books = useLiveQuery(() => db.books.toArray(), []);
   const [selectedBook, setSelectedBook] = useAtom(selectedBookAtom);
+  const eyeSaverMode = useEyeSaverMode();
 
   const onChooseFile: ChangeEventHandler<HTMLInputElement> = async (e) => {
     const files = e.target.files;
@@ -39,7 +41,7 @@ function App() {
   const onBack = useCallback(() => setSelectedBook(null), [setSelectedBook]);
 
   return (
-    <>
+    <div className={`${eyeSaverMode ? "eye-saver-mode" : ""}`}>
       {selectedBook ? (
         <BookDetail onBack={onBack} />
       ) : (
@@ -50,7 +52,7 @@ function App() {
           onBookDelete={onBookDelete}
         />
       )}
-    </>
+    </div>
   );
 }
 

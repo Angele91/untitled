@@ -1,3 +1,28 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --background-color: #ffffff;
+  --text-color: #000000;
+  --link-color: #0000ff;
+  --filter: none;
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+a {
+  color: var(--link-color);
+}
+
+.eye-saver-mode {
+  filter: var(--filter);
+}
+
+.eye-saver-mode img,
+.eye-saver-mode video {
+  filter: brightness(0.95) sepia(0.2);
+}

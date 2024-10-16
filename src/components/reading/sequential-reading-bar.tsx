@@ -1,10 +1,13 @@
-import React, {useState} from "react";
-import {useAtom} from "jotai";
-import {fastReadingPercentageAtom, wordGroupSizeAtom,} from "../../state/atoms";
-import {SettingsButton} from "./settings-button.tsx";
-import {WordGroup} from "./word-group.tsx";
-import {ControlButtons} from "./control-buttons.tsx";
-import {SettingsModal} from "./settings-modal.tsx";
+import React, { useState } from "react";
+import { useAtom } from "jotai";
+import {
+  fastReadingPercentageAtom,
+  wordGroupSizeAtom,
+} from "../../state/atoms";
+import { SettingsButton } from "./settings-button.tsx";
+import { WordGroup } from "./word-group.tsx";
+import { ControlButtons } from "./control-buttons.tsx";
+import { SettingsModal } from "./settings-modal.tsx";
 
 const SequentialReadingBar: React.FC<{
   isPaused: boolean;
@@ -15,21 +18,21 @@ const SequentialReadingBar: React.FC<{
   stopContinuousMovement: () => void;
   currentWordGroup: string;
 }> = ({
-        isPaused,
-        onPlayPauseToggle,
-        onGoBackwards,
-        onGoAhead,
-        startContinuousMovement,
-        stopContinuousMovement,
-        currentWordGroup,
-      }) => {
+  isPaused,
+  onPlayPauseToggle,
+  onGoBackwards,
+  onGoAhead,
+  startContinuousMovement,
+  stopContinuousMovement,
+  currentWordGroup,
+}) => {
   const [wordGroupSize, setWordGroupSize] = useAtom(wordGroupSizeAtom);
   const [fastReadingPercentage] = useAtom(fastReadingPercentageAtom);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   return (
     <>
-      <div className="transition-all fixed bottom-0 left-0 w-screen pt-2 pb-1 flex items-center justify-between flex-col bg-white border-t border-t-gray-50 shadow-md">
+      <div className="transition-all fixed bottom-0 left-0 w-full pt-2 pb-1 flex items-center justify-between flex-col bg-white border-t border-t-gray-200 shadow-md z-10">
         <div className="w-full flex justify-between px-4 mb-2 h-full">
           <SettingsButton onClick={() => setIsSettingsModalOpen(true)} />
 

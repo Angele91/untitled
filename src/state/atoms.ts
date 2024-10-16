@@ -45,3 +45,9 @@ export const eyeSaverModeAtom = atomWithStorage<boolean>("eyeSaverMode", false);
 
 // New atom for Dark Mode
 export const darkModeAtom = atomWithStorage<boolean>("darkMode", false);
+
+// New atom for current chapter index
+export const currentChapterIndexAtom = atomWithStorage<number>(
+  "currentChapterIndex",
+  0
+);

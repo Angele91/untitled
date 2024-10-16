@@ -1,25 +1,37 @@
-import {FC, useRef} from "react";
-import {useAtomValue} from "jotai";
-import {selectedBookAtom} from "../../state/atoms.ts";
-import {FaTimes} from "react-icons/fa";
-import {Chapter} from "../../lib/epub.ts";
-import {useOnClickOutside} from "usehooks-ts";
+import { FC, useRef } from "react";
+import { useAtom, useAtomValue } from "jotai";
+import {
+  selectedBookAtom,
+  currentChapterIndexAtom,
+} from "../../state/atoms.ts";
+import { FaTimes } from "react-icons/fa";
+import { Chapter } from "../../lib/epub.ts";
+import { useOnClickOutside } from "usehooks-ts";
+import { useSequentialReading } from "../../hooks/use-sequential-reading.ts";
 
 interface ChapterDrawerProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const ChapterDrawer: FC<ChapterDrawerProps> = ({isOpen, onClose}) => {
+const ChapterDrawer: FC<ChapterDrawerProps> = ({ isOpen, onClose }) => {
   const selectedBook = useAtomValue(selectedBookAtom);
+  const [currentChapterIndex, setCurrentChapterIndex] = useAtom(
+    currentChapterIndexAtom
+  );
   const contentRef = useRef<HTMLDivElement | null>(null);
+  const { resetReadingPosition } = useSequentialReading();
 
   useOnClickOutside(contentRef, onClose);
 
-  const handleChapterClick = (chapter: Chapter) => {
+  const handleChapterClick = (chapter: Chapter, index: number) => {
     console.log(chapter);
-    // Implement the logic to jump to the selected chapter
-    console.log(`Jumping to chapter ${chapter.title}`);
+    const chapterElement = document.getElementById(`chapter-${index + 1}`);
+    if (chapterElement) {
+      chapterElement.scrollIntoView({ behavior: "smooth" });
+      setCurrentChapterIndex(index);
+      resetReadingPosition(index);
+    }
     onClose();
   };
 
@@ -32,19 +44,18 @@ const ChapterDrawer: FC<ChapterDrawerProps> = ({isOpen, onClose}) => {
     >
       <div className="flex justify-between items-center p-4 border-b">
         <h2 className="text-lg font-semibold">Chapters</h2>
-        <button
-          onClick={onClose}
-          className="text-gray-500 hover:text-gray-700"
-        >
-          <FaTimes/>
+        <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+          <FaTimes />
         </button>
       </div>
       <div className="overflow-y-auto h-full">
-        {selectedBook?.chapters?.map((chapter) => (
+        {selectedBook?.chapters?.map((chapter, index) => (
           <button
             key={chapter.title}
-            onClick={() => handleChapterClick(chapter)}
-            className="w-full text-left p-4 hover:bg-gray-100 border-b"
+            onClick={() => handleChapterClick(chapter, index)}
+            className={`w-full text-left p-4 hover:bg-gray-100 border-b ${
+              index === currentChapterIndex ? "bg-gray-200" : ""
+            }`}
           >
             {chapter.title}
           </button>

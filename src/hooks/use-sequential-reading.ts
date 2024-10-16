@@ -1,7 +1,7 @@
-import {useCallback, useEffect, useRef, useState} from "react";
-import {delayConfig} from "../lib/constants.ts";
-import {getNextWord, getPreviousWord} from "../lib/textProcessing.tsx";
-import {useAtom} from "jotai";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { delayConfig } from "../lib/constants.ts";
+import { getNextWord, getPreviousWord } from "../lib/textProcessing.tsx";
+import { useAtom } from "jotai";
 import {
   focusWordPaceAtom,
   isPlayingAtom,
@@ -10,8 +10,9 @@ import {
   scrollBlockAtom,
   selectedBookAtom,
   wordGroupSizeAtom,
+  currentChapterIndexAtom,
 } from "../state/atoms.ts";
-import {useAtomValue} from "jotai";
+import { useAtomValue } from "jotai";
 
 const MANUAL_SPEED_MULTIPLIER = 5; // Increase manual navigation speed
 const CONTINUOUS_MOVEMENT_INTERVAL = 50; // Decrease interval for faster continuous movement
@@ -21,7 +22,12 @@ export const useSequentialReading = () => {
   const scrollBlock = useAtomValue(scrollBlockAtom);
   const focusWordPace = useAtomValue(focusWordPaceAtom);
   const wordGroupSize = useAtomValue(wordGroupSizeAtom);
-  const [readingPositions, setReadingPositions] = useAtom(lastReadingPositionsAtom);
+  const [readingPositions, setReadingPositions] = useAtom(
+    lastReadingPositionsAtom
+  );
+  const [currentChapterIndex, setCurrentChapterIndex] = useAtom(
+    currentChapterIndexAtom
+  );
 
   const [sequentialReadingEnabled, setSequentialReadingEnabled] = useAtom(
     isSequentialReadingEnabledAtom
@@ -108,7 +114,7 @@ export const useSequentialReading = () => {
           (isEnd
             ? delayConfig.paragraph
             : delayConfig[punctuation as keyof typeof delayConfig] ||
-            delayConfig.default);
+              delayConfig.default);
         totalDelay += wordDelay;
       }
 
@@ -156,23 +162,63 @@ export const useSequentialReading = () => {
     wordGroupSize,
   ]);
 
+  const resetReadingPosition = useCallback(
+    (chapterIndex: number) => {
+      if (!selectedBook) {
+        console.warn("No book selected, cannot reset reading position");
+        return;
+      }
+
+      const chapterElement = document.getElementById(
+        `chapter-${chapterIndex + 1}`
+      );
+      if (chapterElement) {
+        const firstWordElement =
+          chapterElement.nextElementSibling?.querySelector('[id^="word-"]');
+        if (firstWordElement) {
+          const wordIndex = parseInt(firstWordElement.id.split("-")[1]);
+          setFocusedWordIndex(wordIndex);
+          focusedWordIndexRef.current = wordIndex;
+          setCurrentChapterIndex(chapterIndex);
+
+          setReadingPositions((prev) => ({
+            ...prev,
+            [selectedBook.id]: wordIndex,
+          }));
+
+          firstWordElement.scrollIntoView({
+            behavior: "smooth",
+            block: scrollBlock,
+            inline: "nearest",
+          });
+        }
+      }
+    },
+    [selectedBook, setCurrentChapterIndex, setReadingPositions, scrollBlock]
+  );
+
   const startReadingFrom = useCallback(
-    (wordIndex: number) => {
+    (wordIndex: number, chapterIndex?: number) => {
       if (!selectedBook) {
         console.warn("No book selected, cannot start reading from word");
         return;
       }
 
-      setFocusedWordIndex(wordIndex);
-      setIsPlaying(true);
-      focusedWordIndexRef.current = wordIndex;
+      if (chapterIndex !== undefined) {
+        resetReadingPosition(chapterIndex);
+      } else {
+        setFocusedWordIndex(wordIndex);
+        focusedWordIndexRef.current = wordIndex;
 
-      setReadingPositions((prev) => ({
-        ...prev,
-        [selectedBook.id]: wordIndex,
-      }));
+        setReadingPositions((prev) => ({
+          ...prev,
+          [selectedBook.id]: wordIndex,
+        }));
+      }
+
+      setIsPlaying(true);
     },
-    [selectedBook, setIsPlaying, setReadingPositions]
+    [selectedBook, setIsPlaying, setReadingPositions, resetReadingPosition]
   );
 
   const moveWord = useCallback(
@@ -185,7 +231,7 @@ export const useSequentialReading = () => {
       let newWord = currentWord;
 
       for (let i = 0; i < steps * wordGroupSize; i++) {
-        const {element: nextWord} =
+        const { element: nextWord } =
           direction === "forward"
             ? getNextWord(newWord)
             : getPreviousWord(newWord);
@@ -229,7 +275,7 @@ export const useSequentialReading = () => {
     (direction: "forward" | "backward") => {
       setIsPlaying(false);
       if (continuousMovementRef.current) {
-        clearInterval(continuousMovementRef.current!);
+        clearInterval(continuousMovementRef.current);
       }
 
       const move = () => moveWord(direction, MANUAL_SPEED_MULTIPLIER);
@@ -244,7 +290,7 @@ export const useSequentialReading = () => {
 
   const stopContinuousMovement = useCallback(() => {
     if (continuousMovementRef.current) {
-      clearInterval(continuousMovementRef.current!);
+      clearInterval(continuousMovementRef.current);
       continuousMovementRef.current = null;
     }
   }, []);
@@ -257,7 +303,7 @@ export const useSequentialReading = () => {
       for (let i = 0; i < size; i++) {
         if (currentWord) {
           words.push(currentWord.textContent || "");
-          const {element} = getNextWord(currentWord);
+          const { element } = getNextWord(currentWord);
           currentWord = element as HTMLElement;
         } else {
           break;
@@ -284,6 +330,7 @@ export const useSequentialReading = () => {
     setSequentialReadingEnabled,
     togglePlaying,
     startReadingFrom,
+    resetReadingPosition,
     isPlaying,
     goAhead,
     goBackwards,
@@ -291,5 +338,6 @@ export const useSequentialReading = () => {
     stopContinuousMovement,
     wordGroupSize,
     getCurrentWordGroup,
+    currentChapterIndex,
   };
 };

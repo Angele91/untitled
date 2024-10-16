@@ -12,6 +12,9 @@ import {
 } from "../state/atoms.ts";
 import { useAtomValue } from "jotai";
 
+const MANUAL_SPEED_MULTIPLIER = 5; // Increase manual navigation speed
+const CONTINUOUS_MOVEMENT_INTERVAL = 50; // Decrease interval for faster continuous movement
+
 export const useSequentialReading = () => {
   const selectedBook = useAtomValue(selectedBookAtom);
   const scrollBlock = useAtomValue(scrollBlockAtom);
@@ -30,6 +33,7 @@ export const useSequentialReading = () => {
 
   const focusedWordIndexRef = useRef(focusedWordIndex);
   const sequentialReadingAnimationRef = useRef<number | null>(null);
+  const continuousMovementRef = useRef<number | null>(null);
 
   const togglePlaying = useCallback(() => {
     if (!selectedBook) {
@@ -50,7 +54,7 @@ export const useSequentialReading = () => {
 
       return newVal;
     });
-  }, []);
+  }, [selectedBook, setIsPlaying, setReadingPositions]);
 
   // enables/disables playing when space bar is pressed
   useEffect(() => {
@@ -63,7 +67,7 @@ export const useSequentialReading = () => {
 
     document.addEventListener("keydown", handleKeyPress);
     return () => document.removeEventListener("keydown", handleKeyPress);
-  }, []);
+  }, [togglePlaying]);
 
   // sequential reading animation
   useEffect(() => {
@@ -126,7 +130,13 @@ export const useSequentialReading = () => {
       isMounted = false;
       clearTimeout(sequentialReadingAnimationRef.current!);
     };
-  }, [focusWordPace, scrollBlock, isPlaying, sequentialReadingEnabled]);
+  }, [
+    focusWordPace,
+    scrollBlock,
+    isPlaying,
+    sequentialReadingEnabled,
+    setIsPlaying,
+  ]);
 
   // restores the last reading position when the component is mounted
   useEffect(() => {
@@ -167,39 +177,79 @@ export const useSequentialReading = () => {
     }));
   };
 
+  const moveWord = useCallback(
+    (direction: "forward" | "backward", steps: number = 1) => {
+      if (!selectedBook) return;
+
+      const currentWord = document.getElementById(
+        `word-${focusedWordIndexRef.current}`
+      );
+      let newWord = currentWord;
+
+      for (let i = 0; i < steps; i++) {
+        const { element: nextWord } =
+          direction === "forward"
+            ? getNextWord(newWord)
+            : getPreviousWord(newWord);
+        if (nextWord) {
+          newWord = nextWord;
+        } else {
+          break;
+        }
+      }
+
+      if (newWord && newWord !== currentWord) {
+        const newWordId = parseInt(newWord.id.split("-")[1]);
+        setFocusedWordIndex(newWordId);
+        focusedWordIndexRef.current = newWordId;
+        newWord.scrollIntoView({
+          behavior: "smooth",
+          block: scrollBlock,
+          inline: "nearest",
+        });
+
+        setReadingPositions((prev) => ({
+          ...prev,
+          [selectedBook.id]: newWordId,
+        }));
+      }
+    },
+    [scrollBlock, selectedBook, setReadingPositions]
+  );
+
   const goAhead = useCallback(() => {
-    const focusedWord = document.getElementById(
-      `word-${focusedWordIndexRef.current}`
-    );
-    const { element: nextWord } = getNextWord(focusedWord);
-    if (nextWord) {
-      const nextWordId = parseInt(nextWord.id.split("-")[1]);
-      setFocusedWordIndex(nextWordId);
-      focusedWordIndexRef.current = nextWordId;
-      nextWord.scrollIntoView({
-        behavior: "smooth",
-        block: scrollBlock,
-        inline: "nearest",
-      });
-    }
-  }, [scrollBlock]);
+    setIsPlaying(false);
+    moveWord("forward", MANUAL_SPEED_MULTIPLIER);
+  }, [moveWord, setIsPlaying]);
 
   const goBackwards = useCallback(() => {
-    const focusedWord = document.getElementById(
-      `word-${focusedWordIndexRef.current}`
-    );
-    const { element: previousWord } = getPreviousWord(focusedWord);
-    if (previousWord) {
-      const previousWordId = parseInt(previousWord.id.split("-")[1]);
-      setFocusedWordIndex(previousWordId);
-      focusedWordIndexRef.current = previousWordId;
-      previousWord.scrollIntoView({
-        behavior: "smooth",
-        block: scrollBlock,
-        inline: "nearest",
-      });
+    setIsPlaying(false);
+    moveWord("backward", MANUAL_SPEED_MULTIPLIER);
+  }, [moveWord, setIsPlaying]);
+
+  const startContinuousMovement = useCallback(
+    (direction: "forward" | "backward") => {
+      setIsPlaying(false);
+      if (continuousMovementRef.current) {
+        clearInterval(continuousMovementRef.current);
+      }
+
+      const move = () => moveWord(direction, MANUAL_SPEED_MULTIPLIER);
+      move(); // Move immediately on button press
+      continuousMovementRef.current = window.setInterval(
+        move,
+        CONTINUOUS_MOVEMENT_INTERVAL
+      );
+    },
+    [moveWord, setIsPlaying]
+  );
+
+  const stopContinuousMovement = useCallback(() => {
+    if (continuousMovementRef.current) {
+      clearInterval(continuousMovementRef.current);
+      continuousMovementRef.current = null;
     }
-  }, [scrollBlock]);
+  }, []);
 
   return {
     focusedWordIndex,
@@ -210,5 +260,7 @@ export const useSequentialReading = () => {
     isPlaying,
     goAhead,
     goBackwards,
+    startContinuousMovement,
+    stopContinuousMovement,
   };
 };

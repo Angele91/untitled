@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useCallback } from "react";
 import BookDetailHeader from "./book-detail-header.tsx";
 import { twMerge } from "tailwind-merge";
 import { useSequentialReading } from "../../hooks/use-sequential-reading.ts";
@@ -34,6 +34,8 @@ const BookDetail: React.FC<BookDetailProps> = ({ onBack }) => {
     isPlaying,
     goAhead,
     goBackwards,
+    startContinuousMovement,
+    stopContinuousMovement,
   } = useSequentialReading();
 
   const { focusedWordCoords } = useWordHighlight({
@@ -41,12 +43,24 @@ const BookDetail: React.FC<BookDetailProps> = ({ onBack }) => {
     focusedWordIndex,
   });
 
-  const { memoizedChapters } = useMarkdownRenderer({
-    onWordRightClick: (event, _, wordIndex) => {
+  const handleContextMenu = useCallback(
+    (
+      event: React.MouseEvent | React.TouchEvent,
+      word: string,
+      wordIndex: number
+    ) => {
       event.preventDefault();
-      setContextMenuPosition({ x: event.clientX, y: event.clientY });
+      const { clientX, clientY } =
+        "touches" in event ? event.touches[0] : event;
+      setContextMenuPosition({ x: clientX, y: clientY });
       setSelectedWordIndex(wordIndex);
     },
+    []
+  );
+
+  const { memoizedChapters } = useMarkdownRenderer({
+    onWordRightClick: handleContextMenu,
+    onWordLongPress: handleContextMenu,
   });
 
   const onRequestReadingFromPoint = (wordIndex: number) => {
@@ -98,10 +112,18 @@ const BookDetail: React.FC<BookDetailProps> = ({ onBack }) => {
           onPlayPauseToggle={togglePlaying}
           onGoAhead={goAhead}
           onGoBackwards={goBackwards}
+          startContinuousMovement={startContinuousMovement}
+          stopContinuousMovement={stopContinuousMovement}
         />
       )}
 
-      <main className="p-8 flex flex-col gap-8" ref={contentRef}>
+      <main
+        className="p-8 flex flex-col gap-8"
+        ref={contentRef}
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+      >
         {memoizedChapters}
       </main>
     </div>

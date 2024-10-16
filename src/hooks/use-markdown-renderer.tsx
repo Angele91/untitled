@@ -1,4 +1,11 @@
-import { useMemo, useState, useEffect, ReactNode, MouseEvent } from "react";
+import {
+  useMemo,
+  useState,
+  useEffect,
+  ReactNode,
+  MouseEvent,
+  TouchEvent,
+} from "react";
 import { MarkdownToJSX } from "markdown-to-jsx";
 import { isEmpty, trim } from "lodash";
 import ResourceImage from "../components/utility/resource-image";
@@ -14,10 +21,12 @@ import { useAtomValue } from "jotai";
 
 interface UseMarkdownRendererProps {
   onWordRightClick: (e: MouseEvent, word: string, wordIndex: number) => void;
+  onWordLongPress: (e: TouchEvent, word: string, wordIndex: number) => void;
 }
 
 export const useMarkdownRenderer = ({
   onWordRightClick,
+  onWordLongPress,
 }: UseMarkdownRendererProps) => {
   const selectedBook = useAtomValue(selectedBookAtom);
   const fontSize = useAtomValue(fontSizeAtom);
@@ -49,6 +58,56 @@ export const useMarkdownRenderer = ({
     onWordRightClick(e, word, wordIndex);
   };
 
+  let longPressTimer: number | null = null;
+  let longPressTarget: HTMLElement | null = null;
+  let isLongPress = false;
+  const LONG_PRESS_DURATION = 500; // 500ms for long press
+
+  const handleTouchStart = (e: TouchEvent) => {
+    isLongPress = false;
+    longPressTarget = e.target as HTMLElement;
+    longPressTimer = window.setTimeout(() => {
+      if (longPressTarget) {
+        isLongPress = true;
+        let target = longPressTarget;
+
+        // if target is a strong, use the parent
+        if (target.tagName === "STRONG") {
+          target = target.parentElement as HTMLElement;
+        }
+
+        const word = target.textContent;
+        const wordIndex = parseInt(target.id.replace("word-", ""), 10);
+
+        if (isNaN(wordIndex) || !word) {
+          console.error("Invalid word index");
+          return;
+        }
+
+        onWordLongPress(e, word, wordIndex);
+      }
+    }, LONG_PRESS_DURATION);
+  };
+
+  const handleTouchEnd = (e: TouchEvent) => {
+    if (longPressTimer !== null) {
+      window.clearTimeout(longPressTimer);
+    }
+    if (isLongPress) {
+      e.preventDefault();
+    }
+    longPressTarget = null;
+    isLongPress = false;
+  };
+
+  const handleTouchMove = () => {
+    if (longPressTimer !== null) {
+      window.clearTimeout(longPressTimer);
+      longPressTarget = null;
+      isLongPress = false;
+    }
+  };
+
   const convertWordsToSpans = (
     children: ReactNode,
     boldPercentage: number = 0.45
@@ -59,7 +118,14 @@ export const useMarkdownRenderer = ({
       const normalText = word.slice(boldLength);
       return (
         <>
-          <strong onContextMenu={onContextMenu}>{boldText}</strong>
+          <strong
+            onContextMenu={onContextMenu}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            onTouchMove={handleTouchMove}
+          >
+            {boldText}
+          </strong>
           {normalText}
         </>
       );
@@ -68,7 +134,13 @@ export const useMarkdownRenderer = ({
     if (typeof children === "string") {
       return children.split(" ").map((word, index) => {
         return (
-          <span key={`word-${index}`} onContextMenu={onContextMenu}>
+          <span
+            key={`word-${index}`}
+            onContextMenu={onContextMenu}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            onTouchMove={handleTouchMove}
+          >
             {boldPart(word)}{" "}
           </span>
         );
@@ -82,6 +154,9 @@ export const useMarkdownRenderer = ({
             <span
               key={`${childIndex}-${wordIndex}`}
               onContextMenu={onContextMenu}
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+              onTouchMove={handleTouchMove}
             >
               {boldPart(word)}{" "}
             </span>

@@ -1,13 +1,13 @@
 import React from "react";
 import { FaAlignCenter } from "react-icons/fa";
-import {ScrollBlockOption} from "../state/atoms.ts";
+import { ScrollBlockOption } from "../../state/atoms.ts";
 
 export const ScrollBlockSelector: React.FC<{
   isOpen: boolean;
   onToggle: () => void;
   currentBlock: ScrollBlockOption;
-  onBlockChange: (block: ScrollBlockOption) => void
-}> = ({isOpen, onToggle, currentBlock, onBlockChange}) => {
+  onBlockChange: (block: ScrollBlockOption) => void;
+}> = ({ isOpen, onToggle, currentBlock, onBlockChange }) => {
   const blockOptions: { name: string; value: ScrollBlockOption }[] = [
     { name: "Start", value: "start" },
     { name: "Center", value: "center" },
@@ -22,7 +22,7 @@ export const ScrollBlockSelector: React.FC<{
         className="p-2 rounded-full hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300"
         aria-label="Change scroll block option"
       >
-        <FaAlignCenter/>
+        <FaAlignCenter />
       </button>
       {isOpen && (
         <div className="absolute right-0 mt-2 w-36 bg-white rounded-md shadow-lg z-10">
@@ -35,7 +35,7 @@ export const ScrollBlockSelector: React.FC<{
                 onToggle();
               }}
               className={`w-full text-left px-4 py-2 flex items-center justify-between hover:bg-gray-100 ${
-                currentBlock === option.value ? 'bg-gray-200' : ''
+                currentBlock === option.value ? "bg-gray-200" : ""
               }`}
             >
               <span>{option.name}</span>

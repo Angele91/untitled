@@ -1,15 +1,19 @@
-import {IoIosFastforward, IoIosPause, IoIosPlay, IoIosRewind} from "react-icons/io";
-import {twMerge} from "tailwind-merge";
-import React from "react";
+import {
+  IoIosFastforward,
+  IoIosPause,
+  IoIosPlay,
+  IoIosRewind,
+} from "react-icons/io";
+import { twMerge } from "tailwind-merge";
 
 export const ControlButtons = ({
-                                 isPaused,
-                                 onPlayPauseToggle,
-                                 onGoBackwards,
-                                 onGoAhead,
-                                 startContinuousMovement,
-                                 stopContinuousMovement,
-                               }: {
+  isPaused,
+  onPlayPauseToggle,
+  onGoBackwards,
+  onGoAhead,
+  startContinuousMovement,
+  stopContinuousMovement,
+}: {
   isPaused: boolean;
   onPlayPauseToggle: () => void;
   onGoBackwards: () => void;
@@ -26,21 +30,19 @@ export const ControlButtons = ({
         onMouseUp={stopContinuousMovement}
         onMouseLeave={stopContinuousMovement}
       >
-        <IoIosRewind className={"w-8 h-8"}/>
+        <IoIosRewind className={"w-8 h-8"} />
       </button>
       <button
         className={twMerge(
           "w-14 h-14 rounded-full hover:bg-gray-200 border flex items-center justify-center",
-          isPaused
-            ? "border-blue-500 pl-1"
-            : "border-green-500 animate-pulse"
+          isPaused ? "border-blue-500 pl-1" : "border-green-500 animate-pulse"
         )}
         onClick={onPlayPauseToggle}
       >
         {isPaused ? (
-          <IoIosPlay className={"w-8 h-8 text-blue-500"}/>
+          <IoIosPlay className={"w-8 h-8 text-blue-500"} />
         ) : (
-          <IoIosPause className={"w-8 h-8 text-green-500"}/>
+          <IoIosPause className={"w-8 h-8 text-green-500"} />
         )}
       </button>
       <button
@@ -50,7 +52,7 @@ export const ControlButtons = ({
         onMouseUp={stopContinuousMovement}
         onMouseLeave={stopContinuousMovement}
       >
-        <IoIosFastforward className={"w-8 h-8"}/>
+        <IoIosFastforward className={"w-8 h-8"} />
       </button>
     </div>
     <span

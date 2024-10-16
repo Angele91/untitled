@@ -1,7 +1,6 @@
 import * as Yup from "yup";
 import Modal from "../utility/modal.tsx";
 import { Field, Form, Formik, FormikHelpers } from "formik";
-import React from "react";
 import EyeSaverModeToggle from "./EyeSaverModeToggle";
 
 const SettingsSchema = Yup.object().shape({

@@ -1,8 +1,7 @@
 import "./App.css";
-import { ChangeEventHandler, useCallback } from "react";
+import { ChangeEventHandler, useCallback, lazy, Suspense } from "react";
 import { Book, parseBook } from "./lib/epub";
 import BookGrid from "./components/book/book-grid";
-import BookDetail from "./components/book/book-detail";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "./lib/db.ts";
 import { useAtom } from "jotai";
@@ -10,6 +9,8 @@ import { selectedBookAtom } from "./state/atoms.ts";
 import useEyeSaverMode from "./hooks/useEyeSaverMode.ts";
 import useDarkMode from "./hooks/useDarkMode.ts";
 import MainHeader from "./components/MainHeader";
+
+const BookDetail = lazy(() => import("./components/book/book-detail"));
 
 function App() {
   const books = useLiveQuery(() => db.books.toArray(), []);
@@ -50,7 +51,9 @@ function App() {
       }`}
     >
       {selectedBook ? (
-        <BookDetail onBack={onBack} />
+        <Suspense fallback={<div>Loading...</div>}>
+          <BookDetail onBack={onBack} />
+        </Suspense>
       ) : (
         <>
           <MainHeader />

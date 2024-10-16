@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
 import BookDetailHeader from "./book-detail-header.tsx";
 import { twMerge } from "tailwind-merge";
 import { useSequentialReading } from "../../hooks/use-sequential-reading.ts";
@@ -23,6 +23,8 @@ const BookDetail: React.FC<BookDetailProps> = ({ onBack }) => {
   );
   const eyeSaverMode = useEyeSaverMode();
   const darkMode = useDarkMode();
+  const [scrollTop, setScrollTop] = useState(0);
+  const [contentHeight, setContentHeight] = useState(0);
 
   const [contextMenuPosition, setContextMenuPosition] = useState({
     x: 0,
@@ -49,10 +51,31 @@ const BookDetail: React.FC<BookDetailProps> = ({ onBack }) => {
     focusedWordIndex,
   });
 
+  useEffect(() => {
+    const handleScroll = () => {
+      if (contentRef.current) {
+        setScrollTop(contentRef.current!.scrollTop);
+        setContentHeight(contentRef.current!.clientHeight);
+      }
+    };
+
+    const contentElement = contentRef.current;
+    if (contentElement) {
+      contentElement.addEventListener("scroll", handleScroll);
+      handleScroll(); // Initial call to set initial values
+    }
+
+    return () => {
+      if (contentElement) {
+        contentElement.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, []);
+
   const handleContextMenu = useCallback(
     (
       event: React.MouseEvent | React.TouchEvent,
-      word: string,
+      _word: string,
       wordIndex: number
     ) => {
       event.preventDefault();
@@ -82,30 +105,40 @@ const BookDetail: React.FC<BookDetailProps> = ({ onBack }) => {
 
   const currentWordGroup = getCurrentWordGroup(wordGroupSize);
 
+  const isHighlightVisible = (top: number) => {
+    return top >= scrollTop && top <= scrollTop + contentHeight;
+  };
+
+  const barColor = "red";
+
   return (
     <div
       className={twMerge(
-        "w-screen h-screen overflow-y-auto overflow-x-hidden relative flex flex-col",
+        "w-screen h-screen overflow-hidden relative flex flex-col",
         darkMode ? "dark-mode" : "",
         eyeSaverMode ? "eye-saver-mode" : ""
       )}
     >
       <BookDetailHeader title={selectedBook!.title} onBack={onBack} />
-
-      <div className="flex-grow overflow-y-auto pb-24">
+      <div
+        className="flex-grow overflow-y-auto pb-24 relative"
+        ref={contentRef}
+      >
         {sequentialReadingEnabled &&
           focusedWordsCoords.map(
             (coords, index) =>
-              coords && (
+              coords &&
+              isHighlightVisible(coords.top) && (
                 <div
                   key={index}
-                  className={"absolute transition-all duration-100"}
+                  className="absolute transition-all duration-100"
                   style={{
                     top: coords.top,
-                    left: coords.left - 4,
-                    width: coords.width + 8,
-                    height: coords.height + 4,
-                    borderBottom: "4px solid #f6e05e",
+                    left: coords.left,
+                    width: coords.width,
+                    height: coords.height,
+                    borderBottom: `2px solid ${barColor}`,
+                    pointerEvents: "none",
                   }}
                 />
               )
@@ -124,7 +157,6 @@ const BookDetail: React.FC<BookDetailProps> = ({ onBack }) => {
 
         <main
           className="p-8 flex flex-col gap-8"
-          ref={contentRef}
           onTouchStart={(e) => e.stopPropagation()}
           onTouchEnd={(e) => e.stopPropagation()}
           onTouchMove={(e) => e.stopPropagation()}
@@ -132,7 +164,6 @@ const BookDetail: React.FC<BookDetailProps> = ({ onBack }) => {
           {memoizedChapters}
         </main>
       </div>
-
       {sequentialReadingEnabled && (
         <SequentialReadingBar
           isPaused={!isPlaying}

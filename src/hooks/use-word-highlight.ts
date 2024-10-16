@@ -1,6 +1,6 @@
 import { RefObject, useEffect, useState } from "react";
 import { useAtomValue } from "jotai";
-import { wordGroupSizeAtom } from "../state/atoms";
+import {scrollBlockAtom, wordGroupSizeAtom} from "../state/atoms";
 import { getNextWord } from "../lib/textProcessing";
 
 interface UseWordHighlightProps {
@@ -13,6 +13,7 @@ export const useWordHighlight = ({
   focusedWordIndex,
 }: UseWordHighlightProps) => {
   const wordGroupSize = useAtomValue(wordGroupSizeAtom);
+  const scrollBlock = useAtomValue(scrollBlockAtom);
   const [focusedWordsCoords, setFocusedWordsCoords] = useState<
     Array<{ top: number; left: number; width: number; height: number } | null>
   >([]);
@@ -34,6 +35,7 @@ export const useWordHighlight = ({
       } | null> = [];
 
       let currentWord = document.getElementById(`word-${focusedWordIndex}`);
+
       for (let i = 0; i < wordGroupSize; i++) {
         if (currentWord) {
           const wordRect = currentWord.getBoundingClientRect();
@@ -44,7 +46,8 @@ export const useWordHighlight = ({
             height: wordRect.height,
           });
           const { element } = getNextWord(currentWord);
-          currentWord = element;
+          currentWord = element!;
+          currentWord.scrollIntoView({ block: scrollBlock });
         } else {
           coords.push(null);
         }
@@ -56,7 +59,7 @@ export const useWordHighlight = ({
     updateCoords();
     window.addEventListener("resize", updateCoords);
     return () => window.removeEventListener("resize", updateCoords);
-  }, [focusedWordIndex, contentRef, wordGroupSize]);
+  }, [focusedWordIndex, contentRef, wordGroupSize, scrollBlock]);
 
   return { focusedWordsCoords };
 };

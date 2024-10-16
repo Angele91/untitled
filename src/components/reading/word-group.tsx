@@ -1,14 +1,17 @@
-import React, {useState} from "react";
-import {twMerge} from "tailwind-merge";
-import {IoIosArrowDown, IoIosArrowUp} from "react-icons/io";
+import React, { useState } from "react";
+import { twMerge } from "tailwind-merge";
+import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 
-export const WordGroup = ({currentWordGroup, fastReadingPercentage}: {
+export const WordGroup = ({
+  currentWordGroup,
+  fastReadingPercentage,
+}: {
   currentWordGroup: string;
   fastReadingPercentage: number;
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const renderPartiallyBoldWord = (word) => {
+  const renderPartiallyBoldWord = (word: string) => {
     const boldLength = Math.ceil(word.length * fastReadingPercentage);
     return (
       <span>
@@ -23,10 +26,12 @@ export const WordGroup = ({currentWordGroup, fastReadingPercentage}: {
       className="text-center cursor-pointer"
       onClick={() => setIsExpanded(!isExpanded)}
     >
-      <div className={twMerge(
-        "text-xl font-medium h-0 transition-all overflow-hidden",
-        isExpanded && "h-[33px]"
-      )}>
+      <div
+        className={twMerge(
+          "text-xl font-medium h-0 transition-all overflow-hidden",
+          isExpanded && "h-[33px]"
+        )}
+      >
         {currentWordGroup.split(" ").map((word, index) => (
           <React.Fragment key={index}>
             {renderPartiallyBoldWord(word)}{" "}
@@ -35,9 +40,9 @@ export const WordGroup = ({currentWordGroup, fastReadingPercentage}: {
       </div>
 
       {isExpanded ? (
-        <IoIosArrowDown className="inline-block ml-2"/>
+        <IoIosArrowDown className="inline-block ml-2" />
       ) : (
-        <IoIosArrowUp className="inline-block ml-2"/>
+        <IoIosArrowUp className="inline-block ml-2" />
       )}
     </div>
   );

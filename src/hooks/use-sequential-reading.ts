@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { delayConfig } from "../lib/constants.ts";
-import { getNextWord, getPreviousWord } from "../lib/textProcessing.tsx";
-import { useAtom } from "jotai";
+import {useCallback, useEffect, useRef, useState} from "react";
+import {delayConfig} from "../lib/constants.ts";
+import {getNextWord, getPreviousWord} from "../lib/textProcessing.tsx";
+import {useAtom} from "jotai";
 import {
   focusWordPaceAtom,
   isPlayingAtom,
@@ -11,7 +11,7 @@ import {
   selectedBookAtom,
   wordGroupSizeAtom,
 } from "../state/atoms.ts";
-import { useAtomValue } from "jotai";
+import {useAtomValue} from "jotai";
 
 const MANUAL_SPEED_MULTIPLIER = 5; // Increase manual navigation speed
 const CONTINUOUS_MOVEMENT_INTERVAL = 50; // Decrease interval for faster continuous movement
@@ -108,7 +108,7 @@ export const useSequentialReading = () => {
           (isEnd
             ? delayConfig.paragraph
             : delayConfig[punctuation as keyof typeof delayConfig] ||
-              delayConfig.default);
+            delayConfig.default);
         totalDelay += wordDelay;
       }
 
@@ -185,7 +185,7 @@ export const useSequentialReading = () => {
       let newWord = currentWord;
 
       for (let i = 0; i < steps * wordGroupSize; i++) {
-        const { element: nextWord } =
+        const {element: nextWord} =
           direction === "forward"
             ? getNextWord(newWord)
             : getPreviousWord(newWord);
@@ -257,7 +257,7 @@ export const useSequentialReading = () => {
       for (let i = 0; i < size; i++) {
         if (currentWord) {
           words.push(currentWord.textContent || "");
-          const { element } = getNextWord(currentWord);
+          const {element} = getNextWord(currentWord);
           currentWord = element as HTMLElement;
         } else {
           break;
@@ -276,7 +276,7 @@ export const useSequentialReading = () => {
       setFocusedWordIndex(newWordIndex);
       focusedWordIndexRef.current = newWordIndex;
     }
-  }, [selectedBook, readingPositions]);
+  }, [selectedBook, readingPositions, scrollBlock]);
 
   return {
     focusedWordIndex,

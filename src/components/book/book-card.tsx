@@ -1,9 +1,10 @@
-import { Book } from '../lib/epub';
 import { twMerge } from 'tailwind-merge';
 import {FC, useState, useRef, useEffect} from 'react';
 import { FaTrash, FaEllipsisV } from 'react-icons/fa';
 import {useOnClickOutside} from "usehooks-ts";
 import ColorThief from "colorthief";
+import {Book} from "../../lib/epub.ts";
+import {truncate} from "lodash";
 
 interface BookCardProps {
   book: Book;
@@ -52,7 +53,11 @@ const BookCard: FC<BookCardProps> = ({ book, onBookSelect, onDeleteBook }) => {
           "opacity-0 group-hover:opacity-100 md:flex hidden"
         )}
       >
-        <span className="text-lg text-white">{book.title}</span>
+        <span className="text-lg text-white">{truncate(book.title, {
+          length: 25,
+          omission: '...',
+          separator: ' ',
+        })}</span>
         <span className="text-sm text-white">{book.author}</span>
       </div>
 
@@ -99,7 +104,11 @@ const BookCard: FC<BookCardProps> = ({ book, onBookSelect, onDeleteBook }) => {
 
       {/* Mobile book info overlay */}
       <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white p-2 md:hidden">
-        <h3 className="text-lg font-semibold">{book.title}</h3>
+        <h3 className="text-lg font-semibold">{truncate(book.title, {
+          length: 25,
+          omission: '...',
+          separator: ' ',
+        })}</h3>
         <p className="text-sm">{book.author}</p>
       </div>
     </div>

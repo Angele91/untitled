@@ -12,6 +12,8 @@ import { useHeaderScroll } from "../../hooks/use-header-scroll";
 import { FontSizeSelector } from "../reading/font-size-selector";
 import { PaceSelector } from "../reading/pace-selector";
 import { FastReadingFontSwitch } from "../reading/fast-reading-font-switch";
+import ChapterDrawer from "./chapter-drawer.tsx";
+import {truncate} from "lodash";
 
 export interface HeaderOption {
   id: string;
@@ -37,6 +39,8 @@ const BookDetailHeader: React.FC<BookHeaderProps> = ({ title, onBack }) => {
   const [openOptionId, setOpenOptionId] = useState<string | null>(null);
   const { showHeader } = useHeaderScroll();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isChapterDrawerOpen, setIsChapterDrawerOpen] = useState(false);
+
 
   const headerOptions: HeaderOption[] = useMemo(() => {
     return [
@@ -112,17 +116,27 @@ const BookDetailHeader: React.FC<BookHeaderProps> = ({ title, onBack }) => {
         isMobileMenuOpen ? "h-full bg-transparent" : ""
       )}
     >
-      <div
-        className={twMerge(
-          "flex items-center gap-8",
-          isMobileMenuOpen ? "opacity-0" : "opacity-100"
-        )}
-      >
+      <div className="flex items-center gap-8">
         <button className="text-2xl hover:text-gray-600" onClick={onBack}>
-          <FaChevronLeft />
+          <FaChevronLeft/>
         </button>
-        <span className="text-lg">{title}</span>
+        <button
+          className="text-2xl hover:text-gray-600"
+          onClick={() => setIsChapterDrawerOpen(!isChapterDrawerOpen)}
+        >
+          <FaBars/>
+        </button>
+        <span className="text-lg">{truncate(title, {
+          length: 25,
+          omission: '...',
+          separator: ' ',
+        })}</span>
       </div>
+
+      <ChapterDrawer
+        isOpen={isChapterDrawerOpen}
+        onClose={() => setIsChapterDrawerOpen(false)}
+      />
 
       <div
         className={twMerge(
@@ -145,7 +159,7 @@ const BookDetailHeader: React.FC<BookHeaderProps> = ({ title, onBack }) => {
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="md:hidden text-2xl"
         >
-          {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
+          {isMobileMenuOpen ? <FaTimes/> : <FaBars/>}
         </button>
       </div>
 

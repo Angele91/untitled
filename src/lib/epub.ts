@@ -26,6 +26,7 @@ export interface Book {
 
 export interface Chapter {
   title: string;
+  href: string;
   mdContent: string;
   htmlContent: string;
 }
@@ -126,12 +127,55 @@ export const parseEpub = async (buffer: ArrayBuffer): Promise<Book> => {
   const parser = new DOMParser();
   const opfDoc = parser.parseFromString(opfContent, 'application/xml');
 
+  // Extract TOC
+  const tocNavItem = opfDoc.querySelector('manifest item[properties~="nav"]');
+  const tocNcxItem = opfDoc.querySelector('manifest item[media-type="application/x-dtbncx+xml"]');
+
+  const toc: { [href: string]: string } = {};
+
+  if (tocNavItem) {
+    // EPUB3 TOC
+    const tocHref = tocNavItem.getAttribute('href');
+    const tocFile = zip.file(tocHref) || zip.file(`OEBPS/${tocHref}`);
+    const tocContent = await tocFile?.async('text');
+    if (tocContent) {
+      const tocDoc = parser.parseFromString(await tocContent, 'application/xhtml+xml');
+      const navElements = tocDoc.querySelectorAll('nav[*|type="toc"] a');
+      navElements.forEach((a) => {
+        const href = a.getAttribute('href')?.split('#')[0];
+        if (href) toc[href] = a.textContent || '';
+      });
+    } else {
+      console.warn(`TOC file ${tocHref} not found in zip`);
+    }
+  } else if (tocNcxItem) {
+    // EPUB2 TOC
+    const tocHref = tocNcxItem.getAttribute('href');
+    const tocFile = zip.file(tocHref) || zip.file(`OEBPS/${tocHref}`);
+    const tocContent = await tocFile?.async('text');
+    if (tocContent) {
+      const tocDoc = parser.parseFromString(await tocContent, 'application/xml');
+      const navPoints = tocDoc.querySelectorAll('navPoint');
+      navPoints.forEach((navPoint) => {
+        const content = navPoint.querySelector('content');
+        const text = navPoint.querySelector('text');
+        if (content && text) {
+          const href = content.getAttribute('src')?.split('#')[0];
+          if (href) toc[href] = text.textContent || '';
+        }
+      });
+    } else {
+      console.warn(`TOC file ${tocHref} not found in zip`);
+    }
+  } else {
+    console.warn('TOC not found in manifest');
+  }
+
   const chapters: Chapter[] = [];
   const spine = opfDoc.getElementsByTagName('spine')[0];
   const itemrefs = spine.getElementsByTagName('itemref');
 
-  // we save all the images from the zip inside a resources array which
-  // key is the path and the value is a base64 of the file
+  // Resources processing remains the same
   const resources: Resources = {};
   const resourcesPromises: Promise<void>[] = [];
 
@@ -139,7 +183,6 @@ export const parseEpub = async (buffer: ArrayBuffer): Promise<Book> => {
     if (zipEntry.dir) return;
     resourcesPromises.push(zipEntry.async('base64').then((base64) => {
       const mimeType = getMimeType(relativePath);
-
       const normalizedPath = normalizePath(relativePath);
       resources[normalizedPath] = `data:${mimeType};base64,${base64}`;
     }));
@@ -169,11 +212,15 @@ export const parseEpub = async (buffer: ArrayBuffer): Promise<Book> => {
         if (chapterFile) {
           const chapterContent = await chapterFile.async('text');
 
+          // Use TOC for title if available, otherwise use a default title
+          const title = toc[href] || `Chapter ${i + 1}`;
+
           // Convert HTML to Markdown
           const markdownContent = turndownService.turndown(chapterContent);
 
           chapters.push({
-            title: href,
+            title,
+            href,
             mdContent: markdownContent,
             htmlContent: chapterContent,
           });

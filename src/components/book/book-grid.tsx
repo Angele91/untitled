@@ -1,7 +1,7 @@
-import {ChangeEventHandler, FC} from 'react';
-import {Book} from '../lib/epub';
+import { ChangeEventHandler, FC } from "react";
 import BookCard from "./book-card.tsx";
-import DragAndDropInput from "./drag-and-drop-input.tsx";
+import { Book } from "../../lib/epub.ts";
+import DragAndDropInput from "../input/drag-and-drop-input.tsx";
 
 interface BookGridProps {
   books: Book[];
@@ -10,10 +10,15 @@ interface BookGridProps {
   onBookDelete: (book: Book) => void;
 }
 
-const BookGrid: FC<BookGridProps> = ({books, onChooseFile, onBookSelect, onBookDelete}) => {
+const BookGrid: FC<BookGridProps> = ({
+  books,
+  onChooseFile,
+  onBookSelect,
+  onBookDelete,
+}) => {
   return (
     <div className={"w-screen h-screen flex flex-col gap-4 p-4"}>
-      <DragAndDropInput onChooseFile={onChooseFile}/>
+      <DragAndDropInput onChooseFile={onChooseFile} />
       <div className={"grid grid-cols-2 md:grid-cols-3 gap-4"}>
         {books.map((book, index) => (
           <BookCard

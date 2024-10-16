@@ -1,25 +1,28 @@
-import React, {useRef, useState} from 'react';
+import React, { useRef, useState } from "react";
 import BookDetailHeader from "./book-detail-header.tsx";
-import {twMerge} from "tailwind-merge";
-import {useSequentialReading} from "../hooks/use-sequential-reading.ts";
-import {useWordHighlight} from "../hooks/use-word-highlight.ts";
-import {useMarkdownRenderer} from "../hooks/use-markdown-renderer.tsx";
-import SequentialReadingBar from "./sequential-reading-bar.tsx";
-import {ContextMenu} from "./context-menu.tsx";
-import {useAtomValue} from "jotai";
-import {
-  selectedBookAtom
-} from "../state/atoms.ts";
+import { twMerge } from "tailwind-merge";
+import { useSequentialReading } from "../../hooks/use-sequential-reading.ts";
+import { useWordHighlight } from "../../hooks/use-word-highlight.ts";
+import { useMarkdownRenderer } from "../../hooks/use-markdown-renderer.tsx";
+import SequentialReadingBar from "../reading/sequential-reading-bar.tsx";
+import { ContextMenu } from "../utility/context-menu.tsx";
+import { useAtomValue } from "jotai";
+import { selectedBookAtom } from "../../state/atoms.ts";
 
 interface BookDetailProps {
   onBack: () => void;
 }
 
-const BookDetail: React.FC<BookDetailProps> = ({onBack}) => {
+const BookDetail: React.FC<BookDetailProps> = ({ onBack }) => {
   const selectedBook = useAtomValue(selectedBookAtom);
-  const [selectedWordIndex, setSelectedWordIndex] = useState<number | null>(null);
+  const [selectedWordIndex, setSelectedWordIndex] = useState<number | null>(
+    null
+  );
 
-  const [contextMenuPosition, setContextMenuPosition] = useState({x: 0, y: 0});
+  const [contextMenuPosition, setContextMenuPosition] = useState({
+    x: 0,
+    y: 0,
+  });
 
   const contentRef = useRef<HTMLDivElement | null>(null);
 
@@ -29,49 +32,51 @@ const BookDetail: React.FC<BookDetailProps> = ({onBack}) => {
     startReadingFrom,
     togglePlaying,
     isPlaying,
+    goAhead,
+    goBackwards,
   } = useSequentialReading();
 
-  const {focusedWordCoords} = useWordHighlight({
+  const { focusedWordCoords } = useWordHighlight({
     contentRef,
     focusedWordIndex,
   });
 
-  const {memoizedChapters} = useMarkdownRenderer({
+  const { memoizedChapters } = useMarkdownRenderer({
     onWordRightClick: (event, _, wordIndex) => {
       event.preventDefault();
-      setContextMenuPosition({x: event.clientX, y: event.clientY});
+      setContextMenuPosition({ x: event.clientX, y: event.clientY });
       setSelectedWordIndex(wordIndex);
     },
   });
 
   const onRequestReadingFromPoint = (wordIndex: number) => {
     startReadingFrom(wordIndex);
-    setContextMenuPosition({x: 0, y: 0});
+    setContextMenuPosition({ x: 0, y: 0 });
     setSelectedWordIndex(null);
   };
 
   const onCloseContextMenu = () => {
     setSelectedWordIndex(null);
-    setContextMenuPosition({x: 0, y: 0});
+    setContextMenuPosition({ x: 0, y: 0 });
   };
 
   return (
-    <div className={twMerge("w-screen h-screen overflow-y-auto overflow-x-hidden relative")}>
-      <BookDetailHeader
-        title={selectedBook!.title}
-        onBack={onBack}
-      />
+    <div
+      className={twMerge(
+        "w-screen h-screen overflow-y-auto overflow-x-hidden relative"
+      )}
+    >
+      <BookDetailHeader title={selectedBook!.title} onBack={onBack} />
 
       {sequentialReadingEnabled && (
         <div
-          className={'absolute transition-all duration-100'}
+          className={"absolute transition-all duration-100"}
           style={{
             top: focusedWordCoords?.top ?? 0,
             left: (focusedWordCoords?.left ?? 0) - 4,
             width: (focusedWordCoords?.width ?? 0) + 8,
             height: (focusedWordCoords?.height ?? 0) + 4,
-            // border: '1px solid red',
-            borderBottom: '4px solid #f6e05e',
+            borderBottom: "4px solid #f6e05e",
           }}
         />
       )}
@@ -82,7 +87,7 @@ const BookDetail: React.FC<BookDetailProps> = ({onBack}) => {
           y={contextMenuPosition.y}
           onClose={onCloseContextMenu}
           onRequestReadingFromPoint={() => {
-            onRequestReadingFromPoint(selectedWordIndex)
+            onRequestReadingFromPoint(selectedWordIndex);
           }}
         />
       )}
@@ -91,6 +96,8 @@ const BookDetail: React.FC<BookDetailProps> = ({onBack}) => {
         <SequentialReadingBar
           isPaused={!isPlaying}
           onPlayPauseToggle={togglePlaying}
+          onGoAhead={goAhead}
+          onGoBackwards={goBackwards}
         />
       )}
 

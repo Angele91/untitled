@@ -1,28 +1,30 @@
-import {useCallback, useEffect, useRef, useState} from 'react';
-import {delayConfig} from "../lib/constants.ts";
-import {getNextWord} from "../lib/textProcessing.tsx";
-import {useAtom} from "jotai";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { delayConfig } from "../lib/constants.ts";
+import { getNextWord, getPreviousWord } from "../lib/textProcessing.tsx";
+import { useAtom } from "jotai";
 import {
   focusWordPaceAtom,
   isPlayingAtom,
   isSequentialReadingEnabledAtom,
   lastReadingPositionsAtom,
-  scrollBlockAtom, selectedBookAtom
+  scrollBlockAtom,
+  selectedBookAtom,
 } from "../state/atoms.ts";
-import {useAtomValue} from "jotai";
+import { useAtomValue } from "jotai";
 
 export const useSequentialReading = () => {
   const selectedBook = useAtomValue(selectedBookAtom);
   const scrollBlock = useAtomValue(scrollBlockAtom);
   const focusWordPace = useAtomValue(focusWordPaceAtom);
-  const [readingPositions, setReadingPositions] = useAtom(lastReadingPositionsAtom);
+  const [readingPositions, setReadingPositions] = useAtom(
+    lastReadingPositionsAtom
+  );
 
-  const [
-    sequentialReadingEnabled,
-    setSequentialReadingEnabled
-  ] = useAtom(isSequentialReadingEnabledAtom)
+  const [sequentialReadingEnabled, setSequentialReadingEnabled] = useAtom(
+    isSequentialReadingEnabledAtom
+  );
 
-  const [isPlaying, setIsPlaying] = useAtom(isPlayingAtom)
+  const [isPlaying, setIsPlaying] = useAtom(isPlayingAtom);
 
   const [focusedWordIndex, setFocusedWordIndex] = useState(0);
 
@@ -31,10 +33,10 @@ export const useSequentialReading = () => {
 
   const togglePlaying = useCallback(() => {
     if (!selectedBook) {
-      console.warn('No book selected, cannot toggle playing state');
+      console.warn("No book selected, cannot toggle playing state");
       return;
     }
-    console.debug('Toggling playing state');
+    console.debug("Toggling playing state");
     setIsPlaying((prev) => {
       const newVal = !prev;
 
@@ -53,14 +55,14 @@ export const useSequentialReading = () => {
   // enables/disables playing when space bar is pressed
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.key === ' ') {
+      if (e.key === " ") {
         e.preventDefault();
         togglePlaying();
       }
     };
 
-    document.addEventListener('keydown', handleKeyPress);
-    return () => document.removeEventListener('keydown', handleKeyPress);
+    document.addEventListener("keydown", handleKeyPress);
+    return () => document.removeEventListener("keydown", handleKeyPress);
   }, []);
 
   // sequential reading animation
@@ -72,23 +74,38 @@ export const useSequentialReading = () => {
 
       clearTimeout(sequentialReadingAnimationRef.current!);
 
-      const focusedWord = document.getElementById(`word-${focusedWordIndexRef.current}`);
-      const {element: nextWord, punctuation, isParagraphEnd} = getNextWord(focusedWord);
+      const focusedWord = document.getElementById(
+        `word-${focusedWordIndexRef.current}`
+      );
+      const {
+        element: nextWord,
+        punctuation,
+        isParagraphEnd,
+      } = getNextWord(focusedWord);
 
       if (!nextWord) {
-        console.warn('No next word found, stopping sequential reading');
+        console.warn("No next word found, stopping sequential reading");
         setIsPlaying(false);
         return;
       }
 
-      const delayForPunctuation = delayConfig[punctuation as keyof typeof delayConfig];
-      const delay = focusWordPace + (isParagraphEnd ? delayConfig.paragraph : (delayForPunctuation || delayConfig.default));
+      const delayForPunctuation =
+        delayConfig[punctuation as keyof typeof delayConfig];
+      const delay =
+        focusWordPace +
+        (isParagraphEnd
+          ? delayConfig.paragraph
+          : delayForPunctuation || delayConfig.default);
 
-      const nextWordId = parseInt(nextWord.id.split('-')[1]);
+      const nextWordId = parseInt(nextWord.id.split("-")[1]);
 
       await new Promise((resolve) => setTimeout(resolve, delay));
 
-      nextWord.scrollIntoView({behavior: 'smooth', block: scrollBlock, inline: 'nearest'});
+      nextWord.scrollIntoView({
+        behavior: "smooth",
+        block: scrollBlock,
+        inline: "nearest",
+      });
       setFocusedWordIndex(nextWordId);
       focusedWordIndexRef.current = nextWordId;
 
@@ -98,10 +115,10 @@ export const useSequentialReading = () => {
     };
 
     if (isPlaying && sequentialReadingEnabled) {
-      console.debug('Starting sequential reading');
+      console.debug("Starting sequential reading");
       animateNextWord();
     } else {
-      console.debug('Stopping sequential reading');
+      console.debug("Stopping sequential reading");
       clearTimeout(sequentialReadingAnimationRef.current!);
     }
 
@@ -114,28 +131,29 @@ export const useSequentialReading = () => {
   // restores the last reading position when the component is mounted
   useEffect(() => {
     if (!selectedBook) return;
-    const lastReadingPosition = readingPositions[selectedBook.id]
+    const lastReadingPosition = readingPositions[selectedBook.id];
     if (lastReadingPosition) {
-      setFocusedWordIndex(lastReadingPosition)
-      focusedWordIndexRef.current = lastReadingPosition
+      setFocusedWordIndex(lastReadingPosition);
+      focusedWordIndexRef.current = lastReadingPosition;
     } else {
-      setFocusedWordIndex(0)
-      focusedWordIndexRef.current = 0
+      setFocusedWordIndex(0);
+      focusedWordIndexRef.current = 0;
     }
-  }, [
-    selectedBook?.id,
-    readingPositions
-  ]);
+  }, [selectedBook?.id, readingPositions]);
 
   // on mount, scrolls into view the focused word
   useEffect(() => {
     const focusedWord = document.getElementById(`word-${focusedWordIndex}`);
-    focusedWord?.scrollIntoView({behavior: 'smooth', block: scrollBlock, inline: 'nearest'});
+    focusedWord?.scrollIntoView({
+      behavior: "smooth",
+      block: scrollBlock,
+      inline: "nearest",
+    });
   }, [focusedWordIndex, scrollBlock]);
 
   const startReadingFrom = (wordIndex: number) => {
     if (!selectedBook) {
-      console.warn('No book selected, cannot start reading from word');
+      console.warn("No book selected, cannot start reading from word");
       return;
     }
 
@@ -147,7 +165,41 @@ export const useSequentialReading = () => {
       ...prev,
       [selectedBook.id]: wordIndex,
     }));
-  }
+  };
+
+  const goAhead = useCallback(() => {
+    const focusedWord = document.getElementById(
+      `word-${focusedWordIndexRef.current}`
+    );
+    const { element: nextWord } = getNextWord(focusedWord);
+    if (nextWord) {
+      const nextWordId = parseInt(nextWord.id.split("-")[1]);
+      setFocusedWordIndex(nextWordId);
+      focusedWordIndexRef.current = nextWordId;
+      nextWord.scrollIntoView({
+        behavior: "smooth",
+        block: scrollBlock,
+        inline: "nearest",
+      });
+    }
+  }, [scrollBlock]);
+
+  const goBackwards = useCallback(() => {
+    const focusedWord = document.getElementById(
+      `word-${focusedWordIndexRef.current}`
+    );
+    const { element: previousWord } = getPreviousWord(focusedWord);
+    if (previousWord) {
+      const previousWordId = parseInt(previousWord.id.split("-")[1]);
+      setFocusedWordIndex(previousWordId);
+      focusedWordIndexRef.current = previousWordId;
+      previousWord.scrollIntoView({
+        behavior: "smooth",
+        block: scrollBlock,
+        inline: "nearest",
+      });
+    }
+  }, [scrollBlock]);
 
   return {
     focusedWordIndex,
@@ -156,5 +208,7 @@ export const useSequentialReading = () => {
     togglePlaying,
     startReadingFrom,
     isPlaying,
+    goAhead,
+    goBackwards,
   };
 };

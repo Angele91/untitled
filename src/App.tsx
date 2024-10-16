@@ -1,12 +1,12 @@
-import './App.css';
-import {ChangeEventHandler, useCallback} from 'react';
-import {Book, parseBook} from './lib/epub';
-import BookGrid from './components/book-grid';
-import BookDetail from './components/book-detail';
-import {useLiveQuery} from "dexie-react-hooks";
-import {db} from "./lib/db.ts";
-import {useAtom} from "jotai";
-import {selectedBookAtom} from "./state/atoms.ts";
+import "./App.css";
+import { ChangeEventHandler, useCallback } from "react";
+import { Book, parseBook } from "./lib/epub";
+import BookGrid from "./components/book/book-grid";
+import BookDetail from "./components/book/book-detail";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "./lib/db.ts";
+import { useAtom } from "jotai";
+import { selectedBookAtom } from "./state/atoms.ts";
 
 function App() {
   const books = useLiveQuery(() => db.books.toArray(), []);
@@ -41,9 +41,7 @@ function App() {
   return (
     <>
       {selectedBook ? (
-        <BookDetail
-          onBack={onBack}
-        />
+        <BookDetail onBack={onBack} />
       ) : (
         <BookGrid
           books={books ?? []}

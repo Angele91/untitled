@@ -23,7 +23,6 @@ const ChapterDrawer: FC<ChapterDrawerProps> = ({ isOpen, onClose }) => {
   useOnClickOutside(contentRef, onClose);
 
   const handleChapterClick = (chapter: Chapter, index: number) => {
-    console.log(chapter);
     const chapterElement = document.getElementById(`chapter-${index + 1}`);
     if (chapterElement) {
       chapterElement.scrollIntoView({ behavior: "smooth" });

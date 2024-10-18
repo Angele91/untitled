@@ -7,18 +7,18 @@ import React, {
   FC,
 } from "react";
 import BookDetailHeader from "../components/book/book-detail-header.tsx";
-import { twMerge } from "tailwind-merge";
-import { useSequentialReading } from "../hooks/use-sequential-reading.ts";
-import { useWordHighlight } from "../hooks/use-word-highlight.ts";
-import { useMarkdownRenderer } from "../hooks/use-markdown-renderer.tsx";
+import {twMerge} from "tailwind-merge";
+import {useSequentialReading} from "../hooks/use-sequential-reading.ts";
+import {useWordHighlight} from "../hooks/use-word-highlight.ts";
+import {useMarkdownRenderer} from "../hooks/use-markdown-renderer.tsx";
 import SequentialReadingBar from "../components/reading/sequential-reading-bar.tsx";
-import { ContextMenu } from "../components/utility/context-menu.tsx";
-import { useAtomValue } from "jotai";
-import { wordGroupSizeAtom } from "../state/atoms.ts";
+import {ContextMenu} from "../components/utility/context-menu.tsx";
+import {useAtomValue} from "jotai";
+import {wordGroupSizeAtom} from "../state/atoms.ts";
 import useEyeSaverMode from "../hooks/useEyeSaverMode.ts";
 import useDarkMode from "../hooks/useDarkMode.ts";
-import { useNavigate } from "react-router-dom";
-import { useSelectedBook } from "../hooks/use-selected-book.ts";
+import {useNavigate} from "react-router-dom";
+import {useSelectedBook} from "../hooks/use-selected-book.ts";
 
 const BookDetail: FC = () => {
   const navigate = useNavigate();
@@ -59,7 +59,7 @@ const BookDetail: FC = () => {
     getCurrentWordGroup,
   } = useSequentialReading();
 
-  const { focusedWordsCoords } = useWordHighlight({
+  const {focusedWordsCoords} = useWordHighlight({
     contentRef,
     focusedWordIndex,
   });
@@ -92,15 +92,15 @@ const BookDetail: FC = () => {
       wordIndex: number
     ) => {
       event.preventDefault();
-      const { clientX, clientY } =
+      const {clientX, clientY} =
         "touches" in event ? event.touches[0] : event;
-      setContextMenuPosition({ x: clientX, y: clientY });
+      setContextMenuPosition({x: clientX, y: clientY});
       setSelectedWordIndex(wordIndex);
     },
     []
   );
 
-  const { memoizedChapters } = useMarkdownRenderer({
+  const {memoizedChapters} = useMarkdownRenderer({
     onWordRightClick: handleContextMenu,
     onWordLongPress: handleContextMenu,
   });
@@ -118,20 +118,16 @@ const BookDetail: FC = () => {
 
   const onRequestReadingFromPoint = (wordIndex: number) => {
     startReadingFrom(wordIndex);
-    setContextMenuPosition({ x: 0, y: 0 });
+    setContextMenuPosition({x: 0, y: 0});
     setSelectedWordIndex(null);
   };
 
   const onCloseContextMenu = () => {
     setSelectedWordIndex(null);
-    setContextMenuPosition({ x: 0, y: 0 });
+    setContextMenuPosition({x: 0, y: 0});
   };
 
   const currentWordGroup = getCurrentWordGroup(wordGroupSize);
-
-  const isHighlightVisible = (top: number) => {
-    return top >= scrollTop && top <= scrollTop + contentHeight;
-  };
 
   const barColor = "red";
 
@@ -147,7 +143,7 @@ const BookDetail: FC = () => {
         eyeSaverMode ? "eye-saver-mode" : ""
       )}
     >
-      <BookDetailHeader title={selectedBook!.title} onBack={onBack} />
+      <BookDetailHeader title={selectedBook!.title} onBack={onBack}/>
       <div
         className="flex-grow overflow-y-auto pb-24 relative"
         ref={contentRef}
@@ -155,11 +151,11 @@ const BookDetail: FC = () => {
         {sequentialReadingEnabled &&
           focusedWordsCoords.map(
             (coords, index) =>
-              coords &&
-              isHighlightVisible(coords.top) && (
+              coords && (
                 <div
                   key={index}
                   className="absolute transition-all duration-100"
+                  id={`untitled-highlight-${index}`}
                   style={{
                     top: coords.top,
                     left: coords.left,

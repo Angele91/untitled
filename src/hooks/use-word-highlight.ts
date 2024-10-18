@@ -1,6 +1,6 @@
 import { RefObject, useEffect, useState } from "react";
 import { useAtomValue } from "jotai";
-import {scrollBlockAtom, wordGroupSizeAtom} from "../state/atoms";
+import {idsGeneratedAtom, scrollBlockAtom, wordGroupSizeAtom} from "../state/atoms";
 import { getNextWord } from "../lib/textProcessing";
 
 interface UseWordHighlightProps {
@@ -14,19 +14,24 @@ export const useWordHighlight = ({
 }: UseWordHighlightProps) => {
   const wordGroupSize = useAtomValue(wordGroupSizeAtom);
   const scrollBlock = useAtomValue(scrollBlockAtom);
+  const idsGenerated = useAtomValue(idsGeneratedAtom);
   const [focusedWordsCoords, setFocusedWordsCoords] = useState<
     Array<{ top: number; left: number; width: number; height: number } | null>
   >([]);
 
   useEffect(() => {
+    if (!idsGenerated) return;
+
     const updateCoords = () => {
       const container = contentRef.current;
+
       if (!container) {
         setFocusedWordsCoords([]);
         return;
       }
 
       const containerRect = container.getBoundingClientRect();
+
       const coords: Array<{
         top: number;
         left: number;
@@ -39,16 +44,19 @@ export const useWordHighlight = ({
       for (let i = 0; i < wordGroupSize; i++) {
         if (currentWord) {
           const wordRect = currentWord.getBoundingClientRect();
+
           coords.push({
             top: wordRect.top - containerRect.top + container.scrollTop,
             left: wordRect.left - containerRect.left + container.scrollLeft,
             width: wordRect.width,
             height: wordRect.height,
           });
+
           const { element } = getNextWord(currentWord);
           currentWord = element!;
-          currentWord.scrollIntoView({ block: scrollBlock });
+          currentWord.scrollIntoView({ block: scrollBlock, behavior: "smooth" });
         } else {
+          console.warn(`Word with index ${focusedWordIndex + i} not found`);
           coords.push(null);
         }
       }
@@ -59,7 +67,7 @@ export const useWordHighlight = ({
     updateCoords();
     window.addEventListener("resize", updateCoords);
     return () => window.removeEventListener("resize", updateCoords);
-  }, [focusedWordIndex, contentRef, wordGroupSize, scrollBlock]);
+  }, [focusedWordIndex, contentRef, wordGroupSize, scrollBlock, idsGenerated]);
 
   return { focusedWordsCoords };
 };

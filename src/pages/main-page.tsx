@@ -40,7 +40,6 @@ export default function MainPage() {
   };
 
   const onBookSelect = (book: Book): void => {
-    console.log("book selected", book);
     navigate(`/book/${book.id}`);
   };
 

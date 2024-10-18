@@ -15,9 +15,9 @@ import { Chapter } from "../lib/epub.ts";
 import {
   fontSizeAtom,
   isFastReadingFontEnabledAtom,
-  fastReadingPercentageAtom,
+  fastReadingPercentageAtom, idsGeneratedAtom,
 } from "../state/atoms.ts";
-import { useAtomValue } from "jotai";
+import {useAtom, useAtomValue} from "jotai";
 import { useSelectedBook } from "./use-selected-book.ts";
 
 interface UseMarkdownRendererProps {
@@ -34,7 +34,7 @@ export const useMarkdownRenderer = ({
   const enableFastReadingFont = useAtomValue(isFastReadingFontEnabledAtom);
   const fastReadingFontPercentage = useAtomValue(fastReadingPercentageAtom);
 
-  const [idsGenerated, setIdsGenerated] = useState(false);
+  const [idsGenerated, setIdsGenerated] = useAtom(idsGeneratedAtom);
   const spanBoldPercentage = enableFastReadingFont
     ? fastReadingFontPercentage ?? 45
     : 0;
@@ -127,7 +127,7 @@ export const useMarkdownRenderer = ({
         return children.flatMap((child, childIndex) =>
           typeof child === "string"
             ? child
-                .split(" ")
+                .split(" " as any)
                 .map((word, wordIndex) =>
                   createSpan(word, `${childIndex}-${wordIndex}`)
                 )

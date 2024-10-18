@@ -139,7 +139,6 @@ function getMimeType(filePath: string): string {
 
 export const parseEpub = async (buffer: ArrayBuffer): Promise<Book> => {
   const zip = await JSZip.loadAsync(buffer);
-  console.log(Object.keys(zip.files)); // Print the contents of the zip file
   const metadata = await getEPUBMetadata(zip);
 
   const opfFile = Object.values(zip.files).find((file) =>

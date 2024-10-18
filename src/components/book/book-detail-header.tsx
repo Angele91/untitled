@@ -182,11 +182,9 @@ const BookDetailHeader: React.FC<BookHeaderProps> = ({ title, onBack }) => {
                   className="mb-4 flex gap-2 items-center"
                   id={option.id}
                   onClick={() => {
-                    console.log("test");
                     if (option.id === "fastReadingFont") {
                       setIsFastReadingFontEnabled(!isFastReadingFontEnabled);
                     } else {
-                      console.log("toggle", option.id);
                       setOpenOptionId(
                         openOptionId === option.id ? null : option.id
                       );

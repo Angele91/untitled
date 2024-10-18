@@ -9,12 +9,12 @@ import {
   lastReadingPositionsAtom,
   scrollBlockAtom,
   wordGroupSizeAtom,
-  currentChapterIndexAtom,
+  currentChapterIndexAtom, idsGeneratedAtom,
 } from "../state/atoms.ts";
 import { useAtomValue } from "jotai";
 import { useSelectedBook } from "./use-selected-book.ts";
 
-const MANUAL_SPEED_MULTIPLIER = 5; // Increase manual navigation speed
+const MANUAL_SPEED_MULTIPLIER = 1; // Increase manual navigation speed
 const CONTINUOUS_MOVEMENT_INTERVAL = 50; // Decrease interval for faster continuous movement
 
 export const useSequentialReading = () => {
@@ -35,6 +35,8 @@ export const useSequentialReading = () => {
   );
 
   const [isPlaying, setIsPlaying] = useAtom(isPlayingAtom);
+
+  const idsGenerated = useAtomValue(idsGeneratedAtom);
 
   const [focusedWordIndex, setFocusedWordIndex] = useState(0);
 
@@ -333,12 +335,12 @@ export const useSequentialReading = () => {
 
   // restore the readingPosition when the book is changed
   useEffect(() => {
-    if (selectedBook) {
+    if (selectedBook && idsGenerated) {
       const newWordIndex = readingPositions[selectedBook.id] || 0;
       setFocusedWordIndex(newWordIndex);
       focusedWordIndexRef.current = newWordIndex;
     }
-  }, [selectedBook, readingPositions, scrollBlock]);
+  }, [selectedBook, readingPositions, scrollBlock, idsGenerated]);
 
   return {
     focusedWordIndex,

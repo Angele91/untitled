@@ -1,4 +1,4 @@
-import MainHeader from "../components/MainHeader.tsx";
+import MainHeader from "../components/main-header.tsx";
 import BookGrid from "../components/book/book-grid.tsx";
 import useEyeSaverMode from "../hooks/useEyeSaverMode.ts";
 import useDarkMode from "../hooks/useDarkMode.ts";

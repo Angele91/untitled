@@ -5,7 +5,7 @@ import { getNextWord } from "../lib/textProcessing";
 
 interface UseWordHighlightProps {
   contentRef: RefObject<HTMLDivElement>;
-  focusedWordIndex: number;
+  focusedWordIndex?: number;
 }
 
 export const useWordHighlight = ({
@@ -15,12 +15,13 @@ export const useWordHighlight = ({
   const wordGroupSize = useAtomValue(wordGroupSizeAtom);
   const scrollBlock = useAtomValue(scrollBlockAtom);
   const idsGenerated = useAtomValue(idsGeneratedAtom);
+  const [firstFocusHappened, setFirstFocusHappened] = useState(false);
   const [focusedWordsCoords, setFocusedWordsCoords] = useState<
     Array<{ top: number; left: number; width: number; height: number } | null>
   >([]);
 
   useEffect(() => {
-    if (!idsGenerated) return;
+    if (!idsGenerated || !focusedWordIndex) return;
 
     const updateCoords = () => {
       const container = contentRef.current;
@@ -54,7 +55,10 @@ export const useWordHighlight = ({
 
           const { element } = getNextWord(currentWord);
           currentWord = element!;
-          currentWord.scrollIntoView({ block: scrollBlock, behavior: "smooth" });
+          currentWord.scrollIntoView({ block: scrollBlock, behavior: firstFocusHappened ? "smooth" : "auto" });
+          setFirstFocusHappened(
+            coords.filter(Boolean).length === wordGroupSize
+          );
         } else {
           console.warn(`Word with index ${focusedWordIndex + i} not found`);
           coords.push(null);
@@ -67,7 +71,7 @@ export const useWordHighlight = ({
     updateCoords();
     window.addEventListener("resize", updateCoords);
     return () => window.removeEventListener("resize", updateCoords);
-  }, [focusedWordIndex, contentRef, wordGroupSize, scrollBlock, idsGenerated]);
+  }, [focusedWordIndex, contentRef, wordGroupSize, scrollBlock, idsGenerated, firstFocusHappened]);
 
   return { focusedWordsCoords };
 };

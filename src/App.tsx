@@ -5,6 +5,7 @@ import BookDetail from "./pages/book-detail.tsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import MainPage from "./pages/main-page.tsx";
+import SettingsPage from "./pages/settings-page.tsx";
 
 const router = createBrowserRouter([
   {
@@ -15,6 +16,10 @@ const router = createBrowserRouter([
     path: "/book/:id",
     element: <BookDetail />,
   },
+  {
+    path: '/settings',
+    element: <SettingsPage />,
+  }
 ]);
 
 function App() {

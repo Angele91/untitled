@@ -38,7 +38,7 @@ export const useSequentialReading = () => {
 
   const idsGenerated = useAtomValue(idsGeneratedAtom);
 
-  const [focusedWordIndex, setFocusedWordIndex] = useState(0);
+  const [focusedWordIndex, setFocusedWordIndex] = useState<number | undefined>(undefined);
 
   const focusedWordIndexRef = useRef(focusedWordIndex);
   const sequentialReadingAnimationRef = useRef<number | null>(null);
@@ -58,7 +58,7 @@ export const useSequentialReading = () => {
         // save the current reading position
         setReadingPositions((prev) => ({
           ...prev,
-          [selectedBook.id]: focusedWordIndexRef.current,
+          [selectedBook.id]: focusedWordIndexRef.current || 0,
         }));
       }
 
@@ -140,6 +140,7 @@ export const useSequentialReading = () => {
             block: scrollBlock,
             inline: "nearest",
           });
+
           const nextWordId = parseInt(nextWord.id.split("-")[1]);
           setFocusedWordIndex(nextWordId);
           focusedWordIndexRef.current = nextWordId;
@@ -264,6 +265,7 @@ export const useSequentialReading = () => {
         const newWordId = parseInt(newWord.id.split("-")[1]);
         setFocusedWordIndex(newWordId);
         focusedWordIndexRef.current = newWordId;
+
         newWord.scrollIntoView({
           behavior: "smooth",
           block: scrollBlock,

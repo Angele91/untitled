@@ -1,13 +1,7 @@
 import { atomWithStorage } from "jotai/utils";
-import { Book } from "../lib/epub.ts";
 import { atom } from "jotai";
 
 export type ScrollBlockOption = "start" | "center" | "end" | "nearest";
-
-export const selectedBookAtom = atomWithStorage<Book | null>(
-  "selectedBook",
-  null
-);
 
 export const fontSizeAtom = atomWithStorage<string>("fontSize", "16px");
 export const focusWordPaceAtom = atomWithStorage<number>("focusWordPace", 200);

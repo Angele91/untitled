@@ -8,17 +8,18 @@ import {
   isSequentialReadingEnabledAtom,
   lastReadingPositionsAtom,
   scrollBlockAtom,
-  selectedBookAtom,
   wordGroupSizeAtom,
   currentChapterIndexAtom,
 } from "../state/atoms.ts";
 import { useAtomValue } from "jotai";
+import { useSelectedBook } from "./use-selected-book.ts";
 
 const MANUAL_SPEED_MULTIPLIER = 5; // Increase manual navigation speed
 const CONTINUOUS_MOVEMENT_INTERVAL = 50; // Decrease interval for faster continuous movement
 
 export const useSequentialReading = () => {
-  const selectedBook = useAtomValue(selectedBookAtom);
+  const selectedBook = useSelectedBook();
+
   const scrollBlock = useAtomValue(scrollBlockAtom);
   const focusWordPace = useAtomValue(focusWordPaceAtom);
   const wordGroupSize = useAtomValue(wordGroupSizeAtom);
@@ -80,10 +81,10 @@ export const useSequentialReading = () => {
   useEffect(() => {
     let isMounted = true;
 
-    const animateNextWordGroup = async () => {
+    const animateNextWordGroup = () => {
       if (!isMounted) return;
 
-      clearTimeout(sequentialReadingAnimationRef.current!);
+      cancelAnimationFrame(sequentialReadingAnimationRef.current!);
 
       const currentWord = document.getElementById(
         `word-${focusedWordIndexRef.current}`
@@ -99,9 +100,12 @@ export const useSequentialReading = () => {
           punctuation,
           isParagraphEnd: isEnd,
         } = getNextWord(nextWord);
+
         if (!element) break;
+
         nextWord = element;
         isParagraphEnd = isParagraphEnd || isEnd;
+
         if (
           delayConfig[punctuation as keyof typeof delayConfig] >
           delayConfig[maxPunctuation as keyof typeof delayConfig]
@@ -115,6 +119,7 @@ export const useSequentialReading = () => {
             ? delayConfig.paragraph
             : delayConfig[punctuation as keyof typeof delayConfig] ||
               delayConfig.default);
+
         totalDelay += wordDelay;
       }
 
@@ -124,34 +129,45 @@ export const useSequentialReading = () => {
         return;
       }
 
-      // Use the total delay for the entire word group
-      await new Promise((resolve) => setTimeout(resolve, totalDelay));
+      const startTime = performance.now();
 
-      nextWord.scrollIntoView({
-        behavior: "smooth",
-        block: scrollBlock,
-        inline: "nearest",
-      });
-      const nextWordId = parseInt(nextWord.id.split("-")[1]);
-      setFocusedWordIndex(nextWordId);
-      focusedWordIndexRef.current = nextWordId;
+      const animate = (currentTime: number) => {
+        if (currentTime - startTime >= totalDelay) {
+          nextWord.scrollIntoView({
+            behavior: "smooth",
+            block: scrollBlock,
+            inline: "nearest",
+          });
+          const nextWordId = parseInt(nextWord.id.split("-")[1]);
+          setFocusedWordIndex(nextWordId);
+          focusedWordIndexRef.current = nextWordId;
 
-      if (isMounted) {
-        animateNextWordGroup();
-      }
+          if (isMounted) {
+            sequentialReadingAnimationRef.current =
+              requestAnimationFrame(animateNextWordGroup);
+          }
+        } else {
+          sequentialReadingAnimationRef.current =
+            requestAnimationFrame(animate);
+        }
+      };
+
+      sequentialReadingAnimationRef.current = requestAnimationFrame(animate);
     };
 
     if (isPlaying && sequentialReadingEnabled) {
       console.debug("Starting sequential reading");
       animateNextWordGroup();
-    } else {
-      console.debug("Stopping sequential reading");
+    } else if (sequentialReadingAnimationRef.current) {
       clearTimeout(sequentialReadingAnimationRef.current!);
     }
 
     return () => {
       isMounted = false;
-      clearTimeout(sequentialReadingAnimationRef.current!);
+
+      if (sequentialReadingAnimationRef.current) {
+        clearTimeout(sequentialReadingAnimationRef.current!);
+      }
     };
   }, [
     focusWordPace,
@@ -275,7 +291,7 @@ export const useSequentialReading = () => {
     (direction: "forward" | "backward") => {
       setIsPlaying(false);
       if (continuousMovementRef.current) {
-        clearInterval(continuousMovementRef.current);
+        clearInterval(continuousMovementRef.current!);
       }
 
       const move = () => moveWord(direction, MANUAL_SPEED_MULTIPLIER);
@@ -290,7 +306,7 @@ export const useSequentialReading = () => {
 
   const stopContinuousMovement = useCallback(() => {
     if (continuousMovementRef.current) {
-      clearInterval(continuousMovementRef.current);
+      clearInterval(continuousMovementRef.current!);
       continuousMovementRef.current = null;
     }
   }, []);

@@ -1,5 +1,7 @@
 import React from "react";
 import { IoIosClose } from "react-icons/io";
+import {useDarkMode} from "usehooks-ts";
+import {twMerge} from "tailwind-merge";
 
 interface ModalProps {
   isOpen: boolean;
@@ -9,11 +11,16 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
+  const isDarkMode = useDarkMode();
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-96 max-w-full">
+      <div className={twMerge(
+        "bg-white rounded-lg p-6 w-96 max-w-full",
+        isDarkMode ? "text-white" : "text-gray-800",
+        isDarkMode ? "bg-gray-800" : "bg-white",
+      )}>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">{title}</h2>
           <button

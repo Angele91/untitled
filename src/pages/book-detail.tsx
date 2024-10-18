@@ -1,22 +1,30 @@
-import React, { useRef, useState, useCallback, useEffect } from "react";
-import BookDetailHeader from "./book-detail-header.tsx";
+import React, {
+  useRef,
+  useState,
+  useCallback,
+  useEffect,
+  useMemo,
+  FC,
+} from "react";
+import BookDetailHeader from "../components/book/book-detail-header.tsx";
 import { twMerge } from "tailwind-merge";
-import { useSequentialReading } from "../../hooks/use-sequential-reading.ts";
-import { useWordHighlight } from "../../hooks/use-word-highlight.ts";
-import { useMarkdownRenderer } from "../../hooks/use-markdown-renderer.tsx";
-import SequentialReadingBar from "../reading/sequential-reading-bar.tsx";
-import { ContextMenu } from "../utility/context-menu.tsx";
+import { useSequentialReading } from "../hooks/use-sequential-reading.ts";
+import { useWordHighlight } from "../hooks/use-word-highlight.ts";
+import { useMarkdownRenderer } from "../hooks/use-markdown-renderer.tsx";
+import SequentialReadingBar from "../components/reading/sequential-reading-bar.tsx";
+import { ContextMenu } from "../components/utility/context-menu.tsx";
 import { useAtomValue } from "jotai";
-import { selectedBookAtom, wordGroupSizeAtom } from "../../state/atoms.ts";
-import useEyeSaverMode from "../../hooks/useEyeSaverMode";
-import useDarkMode from "../../hooks/useDarkMode";
+import { wordGroupSizeAtom } from "../state/atoms.ts";
+import useEyeSaverMode from "../hooks/useEyeSaverMode.ts";
+import useDarkMode from "../hooks/useDarkMode.ts";
+import { useNavigate } from "react-router-dom";
+import { useSelectedBook } from "../hooks/use-selected-book.ts";
 
-interface BookDetailProps {
-  onBack: () => void;
-}
+const BookDetail: FC = () => {
+  const navigate = useNavigate();
 
-const BookDetail: React.FC<BookDetailProps> = ({ onBack }) => {
-  const selectedBook = useAtomValue(selectedBookAtom);
+  const selectedBook = useSelectedBook();
+
   const wordGroupSize = useAtomValue(wordGroupSizeAtom);
   const [selectedWordIndex, setSelectedWordIndex] = useState<number | null>(
     null
@@ -30,6 +38,11 @@ const BookDetail: React.FC<BookDetailProps> = ({ onBack }) => {
     x: 0,
     y: 0,
   });
+
+  const onBack = () => {
+    setSelectedWordIndex(null);
+    navigate("/");
+  };
 
   const contentRef = useRef<HTMLDivElement | null>(null);
 
@@ -92,6 +105,17 @@ const BookDetail: React.FC<BookDetailProps> = ({ onBack }) => {
     onWordLongPress: handleContextMenu,
   });
 
+  const renderedChapters = useMemo(() => {
+    return memoizedChapters.map((chapter, index) => (
+      <React.Fragment key={`chapter-${index}`}>
+        {React.cloneElement(chapter, {
+          onContextMenu: handleContextMenu,
+          onTouchStart: handleContextMenu,
+        } as any)}
+      </React.Fragment>
+    ));
+  }, [memoizedChapters, handleContextMenu]);
+
   const onRequestReadingFromPoint = (wordIndex: number) => {
     startReadingFrom(wordIndex);
     setContextMenuPosition({ x: 0, y: 0 });
@@ -110,6 +134,10 @@ const BookDetail: React.FC<BookDetailProps> = ({ onBack }) => {
   };
 
   const barColor = "red";
+
+  if (!selectedBook) {
+    return null;
+  }
 
   return (
     <div
@@ -154,14 +182,13 @@ const BookDetail: React.FC<BookDetailProps> = ({ onBack }) => {
             }}
           />
         )}
-
         <main
           className="p-8 flex flex-col gap-8"
           onTouchStart={(e) => e.stopPropagation()}
           onTouchEnd={(e) => e.stopPropagation()}
           onTouchMove={(e) => e.stopPropagation()}
         >
-          {memoizedChapters}
+          {renderedChapters}
         </main>
       </div>
       {sequentialReadingEnabled && (

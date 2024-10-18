@@ -1,13 +1,11 @@
 import { FC, useRef } from "react";
-import { useAtom, useAtomValue } from "jotai";
-import {
-  selectedBookAtom,
-  currentChapterIndexAtom,
-} from "../../state/atoms.ts";
+import { useAtom } from "jotai";
+import { currentChapterIndexAtom } from "../../state/atoms.ts";
 import { FaTimes } from "react-icons/fa";
 import { Chapter } from "../../lib/epub.ts";
 import { useOnClickOutside } from "usehooks-ts";
 import { useSequentialReading } from "../../hooks/use-sequential-reading.ts";
+import { useSelectedBook } from "../../hooks/use-selected-book.ts";
 
 interface ChapterDrawerProps {
   isOpen: boolean;
@@ -15,7 +13,7 @@ interface ChapterDrawerProps {
 }
 
 const ChapterDrawer: FC<ChapterDrawerProps> = ({ isOpen, onClose }) => {
-  const selectedBook = useAtomValue(selectedBookAtom);
+  const selectedBook = useSelectedBook();
   const [currentChapterIndex, setCurrentChapterIndex] = useAtom(
     currentChapterIndexAtom
   );
@@ -51,7 +49,7 @@ const ChapterDrawer: FC<ChapterDrawerProps> = ({ isOpen, onClose }) => {
       <div className="overflow-y-auto h-full">
         {selectedBook?.chapters?.map((chapter, index) => (
           <button
-            key={chapter.title}
+            key={`chapter-${index}-${chapter.title}`}
             onClick={() => handleChapterClick(chapter, index)}
             className={`w-full text-left p-4 hover:bg-gray-100 border-b ${
               index === currentChapterIndex ? "bg-gray-200" : ""

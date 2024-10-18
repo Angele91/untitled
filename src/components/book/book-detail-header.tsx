@@ -15,6 +15,7 @@ import { FastReadingFontSwitch } from "../reading/fast-reading-font-switch";
 import ChapterDrawer from "./chapter-drawer.tsx";
 import { truncate } from "lodash";
 import DarkModeToggle from "../reading/DarkModeToggle";
+import useDarkMode from "../../hooks/useDarkMode.ts";
 
 export interface HeaderOption {
   id: string;
@@ -41,6 +42,7 @@ const BookDetailHeader: React.FC<BookHeaderProps> = ({ title, onBack }) => {
   const { showHeader } = useHeaderScroll();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isChapterDrawerOpen, setIsChapterDrawerOpen] = useState(false);
+  const isDarkMode = useDarkMode();
 
   const headerOptions: HeaderOption[] = useMemo(() => {
     return [
@@ -105,7 +107,8 @@ const BookDetailHeader: React.FC<BookHeaderProps> = ({ title, onBack }) => {
       className={twMerge(
         "px-4 text-gray-800 h-16 flex items-center justify-between bg-gray-50 border-b shadow-sm fixed w-full top-0 transition-transform duration-100 z-10",
         showHeader ? "translate-y-0" : "-translate-y-full",
-        isMobileMenuOpen ? "h-full bg-transparent" : ""
+        isMobileMenuOpen ? "h-full bg-transparent" : "",
+        isDarkMode ? "bg-gray-900 text-white" : ""
       )}
     >
       <div className="flex items-center gap-8">

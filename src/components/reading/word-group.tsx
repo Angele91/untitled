@@ -14,8 +14,8 @@ export const WordGroup = ({
   const renderPartiallyBoldWord = (word: string) => {
     const boldLength = Math.ceil(word.length * fastReadingPercentage);
     return (
-      <span>
-        <strong>{word.slice(0, boldLength)}</strong>
+      <span className={"font-light"}>
+        <strong className={"font-bold"}>{word.slice(0, boldLength)}</strong>
         {word.slice(boldLength)}
       </span>
     );

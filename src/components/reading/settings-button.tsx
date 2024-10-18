@@ -1,10 +1,18 @@
-import { IoIosSettings } from "react-icons/io";
+import {IoIosSettings} from "react-icons/io";
 
-export const SettingsButton = ({ onClick }: { onClick: () => void }) => (
-  <button
-    onClick={onClick}
-    className="text-xs bg-gray-200 hover:bg-gray-300 rounded px-2 py-1 flex items-center h-full"
-  >
-    <IoIosSettings className="mr-1" /> Settings
-  </button>
-);
+import React from "react";
+import {Button} from "../control/button.tsx";
+import {twMerge} from "tailwind-merge";
+
+export const SettingsButton = ({ onClick }: { onClick: () => void }) => {
+  return (
+    <Button
+      onClick={onClick}
+      className={twMerge(
+        "flex flex-col gap-4 justify-center items-center rounded-full w-10 h-10",
+      )}
+    >
+      <IoIosSettings size={24}/>
+    </Button>
+  );
+};

@@ -9,7 +9,9 @@ import {
   lastReadingPositionsAtom,
   scrollBlockAtom,
   wordGroupSizeAtom,
-  currentChapterIndexAtom, idsGeneratedAtom,
+  currentChapterIndexAtom,
+  idsGeneratedAtom,
+  isSearchModeAtom,
 } from "../state/atoms.ts";
 import { useAtomValue } from "jotai";
 import { useSelectedBook } from "./use-selected-book.ts";
@@ -19,6 +21,7 @@ const CONTINUOUS_MOVEMENT_INTERVAL = 50; // Decrease interval for faster continu
 
 export const useSequentialReading = () => {
   const selectedBook = useSelectedBook();
+  const isSearchMode = useAtomValue(isSearchModeAtom);
 
   const scrollBlock = useAtomValue(scrollBlockAtom);
   const focusWordPace = useAtomValue(focusWordPaceAtom);
@@ -38,7 +41,9 @@ export const useSequentialReading = () => {
 
   const idsGenerated = useAtomValue(idsGeneratedAtom);
 
-  const [focusedWordIndex, setFocusedWordIndex] = useState<number | undefined>(undefined);
+  const [focusedWordIndex, setFocusedWordIndex] = useState<number | undefined>(
+    undefined
+  );
 
   const focusedWordIndexRef = useRef(focusedWordIndex);
   const sequentialReadingAnimationRef = useRef<number | null>(null);
@@ -69,6 +74,8 @@ export const useSequentialReading = () => {
   // enables/disables playing when space bar is pressed
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
+      if (isSearchMode) return;
+
       if (e.key === " ") {
         e.preventDefault();
         togglePlaying();
@@ -77,7 +84,7 @@ export const useSequentialReading = () => {
 
     document.addEventListener("keydown", handleKeyPress);
     return () => document.removeEventListener("keydown", handleKeyPress);
-  }, [togglePlaying]);
+  }, [togglePlaying, isSearchMode]);
 
   // sequential reading animation
   useEffect(() => {

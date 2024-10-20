@@ -8,7 +8,7 @@ const addChapterMarkers = (content: string) => {
   const processedLines = lines.map((line) => {
     if (line.startsWith("# ")) {
       chapterIndex++;
-      return `<div id="chapter-${chapterIndex}" class="chapter-marker"></div>\n${line}`;
+      return `<div id="chapter-${chapterIndex}" className="chapter-marker"></div>\n${line}`;
     }
     return line;
   });

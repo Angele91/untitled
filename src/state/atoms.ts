@@ -44,3 +44,4 @@ export const currentChapterIndexAtom = atomWithStorage<number>(
 );
 
 export const idsGeneratedAtom = atom(false);
+export const isSearchModeAtom = atom(false);

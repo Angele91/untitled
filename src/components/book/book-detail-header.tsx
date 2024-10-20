@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { FaChevronLeft } from "react-icons/fa";
+import { FaChevronLeft, FaSearch } from "react-icons/fa";
 import { FaBars } from "react-icons/fa6";
 import { twMerge } from "tailwind-merge";
 import { useHeaderScroll } from "../../hooks/use-header-scroll";
 import ChapterDrawer from "./chapter-drawer.tsx";
 import { truncate } from "lodash";
 import useDarkMode from "../../hooks/useDarkMode.ts";
+import { useAtom } from "jotai";
+import { isSearchModeAtom } from "../../state/atoms.ts";
 
 export interface HeaderOption {
   id: string;
@@ -21,6 +23,7 @@ interface BookHeaderProps {
 const BookDetailHeader: React.FC<BookHeaderProps> = ({ title, onBack }) => {
   const { showHeader } = useHeaderScroll();
   const [isChapterDrawerOpen, setIsChapterDrawerOpen] = useState(false);
+  const [isSearchMode, setSearchMode] = useAtom(isSearchModeAtom);
   const isDarkMode = useDarkMode();
 
   return (
@@ -48,6 +51,15 @@ const BookDetailHeader: React.FC<BookHeaderProps> = ({ title, onBack }) => {
             separator: " ",
           })}
         </span>
+      </div>
+
+      <div>
+        <button
+          className="text-2xl hover:text-gray-600"
+          onClick={() => setSearchMode(!isSearchMode)}
+        >
+          <FaSearch />
+        </button>
       </div>
 
       <ChapterDrawer

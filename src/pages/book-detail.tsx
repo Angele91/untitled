@@ -1,4 +1,11 @@
-import React, { useRef, useState, useCallback, useMemo, FC } from "react";
+import React, {
+  useRef,
+  useState,
+  useCallback,
+  useMemo,
+  FC,
+  useEffect,
+} from "react";
 import BookDetailHeader from "../components/book/book-detail-header.tsx";
 import { twMerge } from "tailwind-merge";
 import { useSequentialReading } from "../hooks/use-sequential-reading.ts";
@@ -6,12 +13,141 @@ import { useWordHighlight } from "../hooks/use-word-highlight.ts";
 import { useMarkdownRenderer } from "../hooks/use-markdown-renderer.tsx";
 import SequentialReadingBar from "../components/reading/sequential-reading-bar.tsx";
 import { ContextMenu } from "../components/utility/context-menu.tsx";
-import { useAtomValue } from "jotai";
-import { wordGroupSizeAtom } from "../state/atoms.ts";
+import { useAtom, useAtomValue } from "jotai";
+import { isSearchModeAtom, wordGroupSizeAtom } from "../state/atoms.ts";
 import useEyeSaverMode from "../hooks/useEyeSaverMode.ts";
 import useDarkMode from "../hooks/useDarkMode.ts";
 import { useNavigate } from "react-router-dom";
 import { useSelectedBook } from "../hooks/use-selected-book.ts";
+import { RxCrossCircled } from "react-icons/rx";
+import { findMatchesInElement, MatchResult } from "../lib/utils.ts";
+import debounce from "lodash/debounce";
+import { trim } from "lodash";
+
+export function SearchInfo({ onClose }: { onClose: () => void }) {
+  const selectedBook = useSelectedBook();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [results, setResults] = useState<any[]>([]);
+  const searchCache = useRef<Map<string, any[]>>(new Map());
+
+  const debouncedSearch = useMemo(
+    () =>
+      debounce(async (query: string) => {
+        if (searchCache.current.has(query)) {
+          setResults(searchCache.current.get(query)!);
+        } else {
+          const content = document.getElementById("book-detail");
+
+          if (!content) {
+            return;
+          }
+
+          const matches = findMatchesInElement(content, query);
+
+          searchCache.current.set(query, matches);
+          setResults(matches);
+        }
+      }, 300),
+    []
+  );
+
+  const handleSearch = useCallback(() => {
+    if (searchQuery && selectedBook) {
+      debouncedSearch(trim(searchQuery));
+    } else {
+      setResults([]);
+    }
+  }, [searchQuery, selectedBook, debouncedSearch]);
+
+  const handleResultClick = (result: MatchResult) => {
+    result.element.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+      inline: "center",
+    });
+
+    window.getSelection()?.removeAllRanges();
+    const range = document.createRange();
+    range.selectNode(result.element);
+    console.log(result.element);
+    window.getSelection()?.addRange(range);
+
+    onClose();
+  };
+
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [debouncedSearch]);
+
+  return (
+    <>
+      <button onClick={onClose} className="h-6 w-6 absolute right-4">
+        <RxCrossCircled size={24} />
+      </button>
+      <div className="flex gap-4 mt-8">
+        <input
+          type="text"
+          placeholder="Search..."
+          className="w-full h-full p-2 border border-gray-200 rounded"
+          value={searchQuery}
+          onChange={(e) => {
+            if (e.target.value === "") {
+              setResults([]);
+            }
+
+            setSearchQuery(e.target.value);
+          }}
+          onBlur={handleSearch}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSearch();
+            }
+          }}
+        />
+        <button
+          onClick={handleSearch}
+          className="p-2 bg-blue-500 text-white rounded"
+        >
+          Search
+        </button>
+      </div>
+      {results?.map((result, index) => (
+        <button
+          key={index}
+          className="p-2 border-b"
+          onClick={() => handleResultClick(result)}
+        >
+          <p
+            dangerouslySetInnerHTML={{
+              __html: result.preview.replace(
+                new RegExp(searchQuery, "gi"),
+                (match: any) => `<span class="bg-yellow-200">${match}</span>`
+              ),
+            }}
+          ></p>
+        </button>
+      ))}
+    </>
+  );
+}
+
+const SearchDrawer: FC<{ onClose: () => void }> = ({ onClose }) => {
+  return (
+    <div className="fixed top-0 right-0 w-1/2 h-full bg-white shadow-lg z-50 p-4 flex flex-col gap-4 overflow-y-auto">
+      <SearchInfo onClose={onClose} />
+    </div>
+  );
+};
+
+const SearchModal: FC<{ onClose: () => void }> = ({ onClose }) => {
+  return (
+    <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <SearchInfo onClose={onClose} />
+    </div>
+  );
+};
 
 const BookDetail: FC = () => {
   const navigate = useNavigate();
@@ -24,6 +160,7 @@ const BookDetail: FC = () => {
   );
   const eyeSaverMode = useEyeSaverMode();
   const darkMode = useDarkMode();
+  const [isSearchMode, setIsSearchMode] = useAtom(isSearchModeAtom);
 
   const [contextMenuPosition, setContextMenuPosition] = useState({
     x: 0,
@@ -149,6 +286,7 @@ const BookDetail: FC = () => {
           />
         )}
         <main
+          id="book-detail"
           className="p-8 flex flex-col gap-8"
           onTouchStart={(e) => e.stopPropagation()}
           onTouchEnd={(e) => e.stopPropagation()}
@@ -167,6 +305,16 @@ const BookDetail: FC = () => {
           stopContinuousMovement={stopContinuousMovement}
           currentWordGroup={currentWordGroup}
         />
+      )}
+      {isSearchMode && (
+        <>
+          <div className="hidden md:block">
+            <SearchDrawer onClose={() => setIsSearchMode(false)} />
+          </div>
+          <div className="block md:hidden">
+            <SearchModal onClose={() => setIsSearchMode(false)} />
+          </div>
+        </>
       )}
     </div>
   );

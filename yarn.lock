@@ -1182,29 +1182,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vercel/nft@npm:^0.10.1":
-  version: 0.10.1
-  resolution: "@vercel/nft@npm:0.10.1"
-  dependencies:
-    acorn: ^8.1.0
-    acorn-class-fields: ^1.0.0
-    acorn-static-class-features: ^1.0.0
-    bindings: ^1.4.0
-    estree-walker: ^0.6.1
-    glob: ^7.1.3
-    graceful-fs: ^4.1.15
-    micromatch: ^4.0.2
-    mkdirp: ^0.5.1
-    node-gyp-build: ^4.2.2
-    node-pre-gyp: ^0.13.0
-    resolve-from: ^5.0.0
-    rollup-pluginutils: ^2.8.2
-  bin:
-    nft: out/cli.js
-  checksum: 808354c9534e503e18908860fd583d14605e3a9f1c351e019c744bfff78f7a838b88aa5bd45b5d91859073cea588a5606f09f523db1b2e57a95d03c7d44cfda5
-  languageName: node
-  linkType: hard
-
 "@vitejs/plugin-react@npm:^4.3.2":
   version: 4.3.3
   resolution: "@vitejs/plugin-react@npm:4.3.3"
@@ -1244,17 +1221,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"acorn-class-fields@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "acorn-class-fields@npm:1.0.0"
-  dependencies:
-    acorn-private-class-elements: ^1.0.0
-  peerDependencies:
-    acorn: ^6 || ^7 || ^8
-  checksum: 14ff899a7dc174816bb65e036a2e03e170d8157d6db17a933a1f8acbf52ccf3108369a1e63269f01a5a7caa92042ebdc70998eb77b79a82558b617c9c36a95b5
-  languageName: node
-  linkType: hard
-
 "acorn-jsx@npm:^5.3.2":
   version: 5.3.2
   resolution: "acorn-jsx@npm:5.3.2"
@@ -1264,27 +1230,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"acorn-private-class-elements@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "acorn-private-class-elements@npm:1.0.0"
-  peerDependencies:
-    acorn: ^6.1.0 || ^7 || ^8
-  checksum: e32dd10e3b33c5eb85148b651b22c610e7c10325cac4461093d724eca04e1281c57be2cc01d571f1b985576e3ea9e5ab1210b67e30cd985e53c8ca1eda3b05ec
-  languageName: node
-  linkType: hard
-
-"acorn-static-class-features@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "acorn-static-class-features@npm:1.0.0"
-  dependencies:
-    acorn-private-class-elements: ^1.0.0
-  peerDependencies:
-    acorn: ^6.1.0 || ^7 || ^8
-  checksum: 3b412af8a6bbd0fb63fbbde51e03f122bb8ea7fcc3de449f092291134e11d286d9733b3e615e7d16dd986bbf5110fde41b8ab16e10a1f879961648370e7bee3b
-  languageName: node
-  linkType: hard
-
-"acorn@npm:^8.1.0, acorn@npm:^8.12.0":
+"acorn@npm:^8.12.0":
   version: 8.13.0
   resolution: "acorn@npm:8.13.0"
   bin:
@@ -1461,15 +1407,6 @@ __metadata:
   version: 2.3.0
   resolution: "binary-extensions@npm:2.3.0"
   checksum: bcad01494e8a9283abf18c1b967af65ee79b0c6a9e6fcfafebfe91dbe6e0fc7272bafb73389e198b310516ae04f7ad17d79aacf6cb4c0d5d5202a7e2e52c7d98
-  languageName: node
-  linkType: hard
-
-"bindings@npm:^1.4.0":
-  version: 1.5.0
-  resolution: "bindings@npm:1.5.0"
-  dependencies:
-    file-uri-to-path: 1.0.0
-  checksum: 65b6b48095717c2e6105a021a7da4ea435aa8d3d3cd085cb9e85bcb6e5773cf318c4745c3f7c504412855940b585bdf9b918236612a1c7a7942491de176f1ae7
   languageName: node
   linkType: hard
 
@@ -2298,13 +2235,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"estree-walker@npm:^0.6.1":
-  version: 0.6.1
-  resolution: "estree-walker@npm:0.6.1"
-  checksum: 9d6f82a4921f11eec18f8089fb3cce6e53bcf45a8e545c42a2674d02d055fb30f25f90495f8be60803df6c39680c80dcee7f944526867eb7aa1fc9254883b23d
-  languageName: node
-  linkType: hard
-
 "esutils@npm:^2.0.2":
   version: 2.0.3
   resolution: "esutils@npm:2.0.3"
@@ -2425,13 +2355,6 @@ __metadata:
     strtok3: ^6.2.4
     token-types: ^4.1.1
   checksum: d983c0f36491c57fcb6cc70fcb02c36d6b53f312a15053263e1924e28ca8314adf0db32170801ad777f09432c32155f31715ceaee66310947731588120d7ec27
-  languageName: node
-  linkType: hard
-
-"file-uri-to-path@npm:1.0.0":
-  version: 1.0.0
-  resolution: "file-uri-to-path@npm:1.0.0"
-  checksum: b648580bdd893a008c92c7ecc96c3ee57a5e7b6c4c18a9a09b44fb5d36d79146f8e442578bc0e173dc027adf3987e254ba1dfd6e3ec998b7c282873010502144
   languageName: node
   linkType: hard
 
@@ -2709,7 +2632,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graceful-fs@npm:^4.1.15, graceful-fs@npm:^4.2.6":
+"graceful-fs@npm:^4.2.6":
   version: 4.2.11
   resolution: "graceful-fs@npm:4.2.11"
   checksum: ac85f94da92d8eb6b7f5a8b20ce65e43d66761c55ce85ac96df6865308390da45a8d3f0296dd3a663de65d30ba497bd46c696cc1e248c72b13d6d567138a4fc7
@@ -3327,7 +3250,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"micromatch@npm:^4.0.2, micromatch@npm:^4.0.4, micromatch@npm:^4.0.5":
+"micromatch@npm:^4.0.4, micromatch@npm:^4.0.5":
   version: 4.0.8
   resolution: "micromatch@npm:4.0.8"
   dependencies:
@@ -3618,17 +3541,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-gyp-build@npm:^4.2.2":
-  version: 4.8.2
-  resolution: "node-gyp-build@npm:4.8.2"
-  bin:
-    node-gyp-build: bin.js
-    node-gyp-build-optional: optional.js
-    node-gyp-build-test: build-test.js
-  checksum: 1a57bba8c4c193f808bd8ad1484d4ebdd8106dd9f04a3e82554dc716e3a2d87d7e369e9503c145e0e6a7e2c663fec0d8aaf52bd8156342ec7fc388195f37824e
-  languageName: node
-  linkType: hard
-
 "node-gyp@npm:latest":
   version: 10.2.0
   resolution: "node-gyp@npm:10.2.0"
@@ -3646,26 +3558,6 @@ __metadata:
   bin:
     node-gyp: bin/node-gyp.js
   checksum: 0233759d8c19765f7fdc259a35eb046ad86c3d09e22f7384613ae2b89647dd27fcf833fdf5293d9335041e91f9b1c539494225959cdb312a5c8080b7534b926f
-  languageName: node
-  linkType: hard
-
-"node-pre-gyp@npm:^0.13.0":
-  version: 0.13.0
-  resolution: "node-pre-gyp@npm:0.13.0"
-  dependencies:
-    detect-libc: ^1.0.2
-    mkdirp: ^0.5.1
-    needle: ^2.2.1
-    nopt: ^4.0.1
-    npm-packlist: ^1.1.6
-    npmlog: ^4.0.2
-    rc: ^1.2.7
-    rimraf: ^2.6.1
-    semver: ^5.3.0
-    tar: ^4
-  bin:
-    node-pre-gyp: ./bin/node-pre-gyp
-  checksum: 118a8989c2edc5935906a59e9cf8bc508f8183f43da3ceb449bde122901b26bf25aa426481a3b1bed44cb739275e249a8ea85521caa15c33e8377ac0dd31bdbc
   languageName: node
   linkType: hard
 
@@ -4313,13 +4205,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"resolve-from@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "resolve-from@npm:5.0.0"
-  checksum: 4ceeb9113e1b1372d0cd969f3468fa042daa1dd9527b1b6bb88acb6ab55d8b9cd65dbf18819f9f9ddf0db804990901dcdaade80a215e7b2c23daae38e64f5bdf
-  languageName: node
-  linkType: hard
-
 "resolve@npm:^1.1.7, resolve@npm:^1.22.2":
   version: 1.22.8
   resolution: "resolve@npm:1.22.8"
@@ -4368,15 +4253,6 @@ __metadata:
   bin:
     rimraf: ./bin.js
   checksum: cdc7f6eacb17927f2a075117a823e1c5951792c6498ebcce81ca8203454a811d4cf8900314154d3259bb8f0b42ab17f67396a8694a54cae3283326e57ad250cd
-  languageName: node
-  linkType: hard
-
-"rollup-pluginutils@npm:^2.8.2":
-  version: 2.8.2
-  resolution: "rollup-pluginutils@npm:2.8.2"
-  dependencies:
-    estree-walker: ^0.6.1
-  checksum: 339fdf866d8f4ff6e408fa274c0525412f7edb01dc46b5ccda51f575b7e0d20ad72965773376fb5db95a77a7fcfcab97bf841ec08dbadf5d6b08af02b7a2cf5e
   languageName: node
   linkType: hard
 
@@ -5217,7 +5093,6 @@ __metadata:
     typescript-eslint: ^8.7.0
     usehooks-ts: ^3.1.0
     vite: ^5.4.8
-    vite-plugin-mix: ^0.4.0
     yup: ^1.4.0
   languageName: unknown
   linkType: soft
@@ -5274,17 +5149,6 @@ __metadata:
   version: 1.1.2
   resolution: "vary@npm:1.1.2"
   checksum: ae0123222c6df65b437669d63dfa8c36cee20a504101b2fcd97b8bf76f91259c17f9f2b4d70a1e3c6bbcee7f51b28392833adb6b2770b23b01abec84e369660b
-  languageName: node
-  linkType: hard
-
-"vite-plugin-mix@npm:^0.4.0":
-  version: 0.4.0
-  resolution: "vite-plugin-mix@npm:0.4.0"
-  dependencies:
-    "@vercel/nft": ^0.10.1
-  peerDependencies:
-    vite: ^3
-  checksum: 0d2d056b7432f9e81fab9ac1911d38d48cc62a35aa1ba548c39714785125e41669744ac3d0c2220187137fca12e5600e6065f525e6aed3ffe6494f7d4339d23c
   languageName: node
   linkType: hard
 

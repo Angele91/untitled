@@ -29,7 +29,6 @@
     "tailwind-merge": "^2.5.3",
     "turndown": "^7.2.0",
     "usehooks-ts": "^3.1.0",
-    "vite-plugin-mix": "^0.4.0",
     "yup": "^1.4.0"
   },
   "devDependencies": {

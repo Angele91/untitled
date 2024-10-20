@@ -41,9 +41,9 @@ const DragAndDropInput: FC<DragAndDropInputProps> = ({ onChooseFile }) => {
   );
 
   return (
-    <div
+    <label
       className={twMerge(
-        `flex h-[230px] justify-center items-center border-2 border-dashed rounded-md p-4 transition-colors`,
+        `flex h-[230px] justify-center items-center border-2 border-dashed rounded-md p-4 transition-colors cursor-pointer`,
         isDarkMode ? "border-gray-600 bg-gray-800" : "",
         isDragging
           ? isDarkMode
@@ -56,30 +56,21 @@ const DragAndDropInput: FC<DragAndDropInputProps> = ({ onChooseFile }) => {
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      onClick={() => {
-        console.log("parent clicked");
-        document.getElementById("fileInput")?.click();
-      }}
+      htmlFor="fileInput"
     >
       <input
         type="file"
         onChange={onChooseFile}
-        onClick={(e) => {
-          e.stopPropagation();
-          console.log("clicked");
-        }}
+        accept=".epub"
         multiple
         id="fileInput"
         className="hidden"
       />
-      <label
-        htmlFor="fileInput"
-        className="cursor-pointer text-blue-500 flex flex-col items-center gap-2"
-      >
+      <span className="text-blue-500 flex flex-col items-center gap-2">
         <FaFileUpload size={48} />
-        <span>Drag & Drop files here or click to upload</span>
-      </label>
-    </div>
+        <span>Drag & Drop files or click here to select files to upload</span>
+      </span>
+    </label>
   );
 };
 

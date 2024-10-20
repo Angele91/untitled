@@ -202,6 +202,14 @@ async function processEpubContents(opfDoc: Document, zip: JSZip) {
     emDelimiter: "_",
     strongDelimiter: "**",
     linkStyle: "inlined",
+    defaultReplacement: function (content, node) {
+      // Remove stylesheets
+      if (node.nodeName === "style") {
+        return "";
+      }
+
+      return content;
+    },
   });
 
   for (let i = 0; i < itemrefs.length; i++) {

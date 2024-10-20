@@ -1,5 +1,4 @@
 # Current state
-- [x] Bug: File selector opens twice when uploading new books
 - [ ] Bug: Improve book parsing
 - [ ] Feature: Search
 - [ ] Feature: Highlighting
@@ -9,6 +8,7 @@
 - [ ] Feature: Improve the settings page with predefined options
 - [ ] Feature: Add a loading spinner when the book is loading.
 - [ ] Feature: In-book linking
+- [x] Bug: File selector opens twice when uploading new books
 - [x] Bug: White text on mobile book card.
 - [x] Bug: Strange overflow in the main page.
 - [x] Bug: Wonky behavior when enabling dark mode and eye saver mode at the same time.

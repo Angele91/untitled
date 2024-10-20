@@ -8,6 +8,8 @@ import { truncate } from "lodash";
 import useDarkMode from "../../hooks/useDarkMode.ts";
 import { useAtom } from "jotai";
 import { isSearchModeAtom } from "../../state/atoms.ts";
+import { SettingsButton } from "../reading/settings-button.tsx";
+import { useNavigate } from "react-router-dom";
 
 export interface HeaderOption {
   id: string;
@@ -25,6 +27,7 @@ const BookDetailHeader: React.FC<BookHeaderProps> = ({ title, onBack }) => {
   const [isChapterDrawerOpen, setIsChapterDrawerOpen] = useState(false);
   const [isSearchMode, setSearchMode] = useAtom(isSearchModeAtom);
   const isDarkMode = useDarkMode();
+  const navigate = useNavigate();
 
   return (
     <header
@@ -53,7 +56,17 @@ const BookDetailHeader: React.FC<BookHeaderProps> = ({ title, onBack }) => {
         </span>
       </div>
 
-      <div>
+      <div
+        className={twMerge(
+          "flex gap-4 items-center",
+          isDarkMode ? "text-gray-200" : ""
+        )}
+      >
+        <SettingsButton
+          onClick={() => {
+            navigate("/settings");
+          }}
+        />
         <button
           className="text-2xl hover:text-gray-600"
           onClick={() => setSearchMode(!isSearchMode)}

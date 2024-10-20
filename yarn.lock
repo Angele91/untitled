@@ -1904,6 +1904,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"easy-speech@npm:^2.4.0":
+  version: 2.4.0
+  resolution: "easy-speech@npm:2.4.0"
+  checksum: 558016477c3fd611b9eb9ff3092ce8d949b099d98de952585f407f443968a401e75a69e36c6a4ef0de77a1d8926750dc37572364caa598d1deca735d2605528f
+  languageName: node
+  linkType: hard
+
 "ee-first@npm:1.1.1":
   version: 1.1.1
   resolution: "ee-first@npm:1.1.1"
@@ -5070,6 +5077,7 @@ __metadata:
     colorthief: ^2.6.0
     dexie: ^4.0.8
     dexie-react-hooks: ^1.1.7
+    easy-speech: ^2.4.0
     epub: ^1.2.1
     eslint: ^9.12.0
     eslint-plugin-react-hooks: ^5.1.0-rc.0

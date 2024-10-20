@@ -1,12 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { useAtom } from "jotai";
 import {
   fastReadingPercentageAtom,
-  wordGroupSizeAtom,
 } from "../../state/atoms";
 import { WordGroup } from "./word-group.tsx";
 import { ControlButtons } from "./control-buttons.tsx";
-import { SettingsModal } from "./settings-modal.tsx";
 import useDarkMode from "../../hooks/useDarkMode";
 
 const SequentialReadingBar: React.FC<{
@@ -26,9 +24,7 @@ const SequentialReadingBar: React.FC<{
   stopContinuousMovement,
   currentWordGroup,
 }) => {
-  const [wordGroupSize, setWordGroupSize] = useAtom(wordGroupSizeAtom);
   const [fastReadingPercentage] = useAtom(fastReadingPercentageAtom);
-  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const isDarkMode = useDarkMode();
 
   return (

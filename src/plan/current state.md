@@ -1,6 +1,5 @@
 # Current state
 - [ ] Feature: Highlighting
-- [ ] Feature: Bookmarking
 - [ ] Feature: Notes
 - [ ] Feature: Preview in settings
 - [ ] Feature: Improve the settings page with predefined options

@@ -55,7 +55,6 @@ export const useSequentialReading = () => {
       return;
     }
 
-    console.debug("Toggling playing state");
     setIsPlaying((prev) => {
       const newVal = !prev;
 
@@ -166,7 +165,6 @@ export const useSequentialReading = () => {
     };
 
     if (isPlaying && sequentialReadingEnabled) {
-      console.debug("Starting sequential reading");
       animateNextWordGroup();
     } else if (sequentialReadingAnimationRef.current) {
       clearTimeout(sequentialReadingAnimationRef.current!);

@@ -66,11 +66,7 @@ export function SearchInfo({ onClose }: { onClose: () => void }) {
       inline: "center",
     });
 
-    window.getSelection()?.removeAllRanges();
-    const range = document.createRange();
-    range.selectNode(result.element);
-    console.log(result.element);
-    window.getSelection()?.addRange(range);
+    // TODO: select the search result
 
     onClose();
   };
@@ -83,9 +79,6 @@ export function SearchInfo({ onClose }: { onClose: () => void }) {
 
   return (
     <>
-      <button onClick={onClose} className="h-6 w-6 absolute right-4">
-        <RxCrossCircled size={24} />
-      </button>
       <div className="flex gap-4 mt-8">
         <input
           type="text"
@@ -116,7 +109,7 @@ export function SearchInfo({ onClose }: { onClose: () => void }) {
       {results?.map((result, index) => (
         <button
           key={index}
-          className="p-2 border-b"
+          className="p-2 border-b w-full text-left"
           onClick={() => handleResultClick(result)}
         >
           <p
@@ -136,6 +129,9 @@ export function SearchInfo({ onClose }: { onClose: () => void }) {
 const SearchDrawer: FC<{ onClose: () => void }> = ({ onClose }) => {
   return (
     <div className="fixed top-0 right-0 w-1/2 h-full bg-white shadow-lg z-50 p-4 flex flex-col gap-4 overflow-y-auto">
+      <button onClick={onClose} className="h-6 w-6 absolute right-4">
+        <RxCrossCircled size={24} />
+      </button>
       <SearchInfo onClose={onClose} />
     </div>
   );
@@ -143,8 +139,17 @@ const SearchDrawer: FC<{ onClose: () => void }> = ({ onClose }) => {
 
 const SearchModal: FC<{ onClose: () => void }> = ({ onClose }) => {
   return (
-    <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <SearchInfo onClose={onClose} />
+    <div
+      className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <div className="p-4 bg-white min-h-[300px] max-h-[80vh] overflow-y-auto">
+        <SearchInfo onClose={onClose} />
+      </div>
     </div>
   );
 };

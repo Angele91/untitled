@@ -198,7 +198,6 @@ export const useMarkdownRenderer = ({
   }, [convertWordsToSpans, spanBoldPercentage, selectedBook, fontSize]);
 
   const memoizedChapters = useMemo(() => {
-    console.debug("Generating chapters");
     return (
       selectedBook?.chapters.map((chapter: Chapter, index: number) => (
         <>
@@ -216,7 +215,6 @@ export const useMarkdownRenderer = ({
 
   useEffect(() => {
     const intervalId = setInterval(() => {
-      console.debug("Generating word ids");
       const articles = document.querySelectorAll("article");
 
       if (!articles.length) {
@@ -232,7 +230,6 @@ export const useMarkdownRenderer = ({
 
       allSpans.forEach((span, index) => (span.id = `word-${index}`));
       setIdsGenerated(true);
-      console.debug("Generated word ids");
       clearInterval(intervalId);
     }, 2000);
 

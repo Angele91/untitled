@@ -18,7 +18,6 @@ interface BookHeaderProps {
   onBack: () => void;
 }
 
-
 const BookDetailHeader: React.FC<BookHeaderProps> = ({ title, onBack }) => {
   const { showHeader } = useHeaderScroll();
   const [isChapterDrawerOpen, setIsChapterDrawerOpen] = useState(false);
@@ -27,7 +26,7 @@ const BookDetailHeader: React.FC<BookHeaderProps> = ({ title, onBack }) => {
   return (
     <header
       className={twMerge(
-        "px-4 text-gray-800 h-16 flex items-center justify-between bg-gray-50 border-b shadow-sm fixed w-full top-0 transition-transform duration-100 z-10",
+        "px-4 text-gray-800 h-16 flex items-center justify-between bg-gray-50 border-b shadow-sm fixed w-full top-0 transition-transform z-10",
         showHeader ? "translate-y-0" : "-translate-y-full",
         isDarkMode ? "bg-gray-900 text-white" : ""
       )}

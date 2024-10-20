@@ -4,7 +4,6 @@ import { currentChapterIndexAtom } from "../../state/atoms.ts";
 import { FaTimes } from "react-icons/fa";
 import { Chapter } from "../../lib/epub.ts";
 import { useOnClickOutside } from "usehooks-ts";
-import { useSequentialReading } from "../../hooks/use-sequential-reading.ts";
 import { useSelectedBook } from "../../hooks/use-selected-book.ts";
 
 interface ChapterDrawerProps {
@@ -18,16 +17,14 @@ const ChapterDrawer: FC<ChapterDrawerProps> = ({ isOpen, onClose }) => {
     currentChapterIndexAtom
   );
   const contentRef = useRef<HTMLDivElement | null>(null);
-  const { resetReadingPosition } = useSequentialReading();
 
   useOnClickOutside(contentRef, onClose);
 
   const handleChapterClick = (chapter: Chapter, index: number) => {
-    const chapterElement = document.getElementById(`chapter-${index + 1}`);
+    const chapterElement = document.getElementById(`chapter-${chapter.href}`);
     if (chapterElement) {
       chapterElement.scrollIntoView({ behavior: "smooth" });
       setCurrentChapterIndex(index);
-      resetReadingPosition(index);
     }
     onClose();
   };
@@ -36,7 +33,7 @@ const ChapterDrawer: FC<ChapterDrawerProps> = ({ isOpen, onClose }) => {
     <div
       className={`fixed inset-y-0 left-0 w-64 h-screen bg-white shadow-lg transform ${
         isOpen ? "translate-x-0" : "-translate-x-full"
-      } transition-transform duration-300 ease-in-out z-50`}
+      } transition-transform ease-in-out z-50`}
       ref={contentRef}
     >
       <div className="flex justify-between items-center p-4 border-b">

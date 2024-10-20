@@ -137,6 +137,14 @@ function getMimeType(filePath: string): string {
   }
 }
 
+export async function parseXmlFromZipFile(
+  file: JSZip.JSZipObject
+): Promise<Document> {
+  const content = await file.async("text");
+  const parser = new DOMParser();
+  return parser.parseFromString(content, "application/xml");
+}
+
 export const parseEpub = async (buffer: ArrayBuffer): Promise<Book> => {
   const zip = await JSZip.loadAsync(buffer);
   const metadata = await getEPUBMetadata(zip);
@@ -144,70 +152,24 @@ export const parseEpub = async (buffer: ArrayBuffer): Promise<Book> => {
   const opfFile = Object.values(zip.files).find((file) =>
     file.name.endsWith(".opf")
   );
+
   if (!opfFile) throw new Error("OPF file not found");
 
-  const opfContent = await opfFile.async("text");
-  const parser = new DOMParser();
-  const opfDoc = parser.parseFromString(opfContent, "application/xml");
+  const opfDoc = await parseXmlFromZipFile(opfFile);
 
-  // Extract TOC
-  const tocNavItem = opfDoc.querySelector('manifest item[properties~="nav"]');
-  const tocNcxItem = opfDoc.querySelector(
-    'manifest item[media-type="application/x-dtbncx+xml"]'
-  );
+  const { chapters } = await processEpubContents(opfDoc, zip);
 
-  const toc: { [href: string]: string } = {};
+  const resources: Resources = await extractResources(zip);
 
-  if (tocNavItem) {
-    // EPUB3 TOC
-    const tocHref = tocNavItem.getAttribute("href");
-    if (tocHref) {
-      const tocFile = zip.file(tocHref) || zip.file(`OEBPS/${tocHref}`);
-      if (tocFile) {
-        const tocContent = await tocFile.async("text");
-        const tocDoc = parser.parseFromString(
-          tocContent,
-          "application/xhtml+xml"
-        );
-        const navElements = tocDoc.querySelectorAll('nav[*|type="toc"] a');
-        navElements.forEach((a) => {
-          const href = a.getAttribute("href")?.split("#")[0];
-          if (href) toc[href] = a.textContent || "";
-        });
-      } else {
-        console.warn(`TOC file ${tocHref} not found in zip`);
-      }
-    }
-  } else if (tocNcxItem) {
-    // EPUB2 TOC
-    const tocHref = tocNcxItem.getAttribute("href");
-    if (tocHref) {
-      const tocFile = zip.file(tocHref) || zip.file(`OEBPS/${tocHref}`);
-      if (tocFile) {
-        const tocContent = await tocFile.async("text");
-        const tocDoc = parser.parseFromString(tocContent, "application/xml");
-        const navPoints = tocDoc.querySelectorAll("navPoint");
-        navPoints.forEach((navPoint) => {
-          const content = navPoint.querySelector("content");
-          const text = navPoint.querySelector("text");
-          if (content && text) {
-            const href = content.getAttribute("src")?.split("#")[0];
-            if (href) toc[href] = text.textContent || "";
-          }
-        });
-      } else {
-        console.warn(`TOC file ${tocHref} not found in zip`);
-      }
-    }
-  } else {
-    console.warn("TOC not found in manifest");
-  }
+  return {
+    ...metadata,
+    chapters,
+    format: BookFormat.Epub,
+    resources,
+  };
+};
 
-  const chapters: Chapter[] = [];
-  const spine = opfDoc.getElementsByTagName("spine")[0];
-  const itemrefs = spine.getElementsByTagName("itemref");
-
-  // Resources processing remains the same
+async function extractResources(zip: JSZip) {
   const resources: Resources = {};
   const resourcesPromises: Promise<void>[] = [];
 
@@ -223,6 +185,15 @@ export const parseEpub = async (buffer: ArrayBuffer): Promise<Book> => {
   });
 
   await Promise.all(resourcesPromises);
+  return resources;
+}
+
+async function processEpubContents(opfDoc: Document, zip: JSZip) {
+  const toc: { [href: string]: string } = await extractToc(opfDoc, zip);
+
+  const chapters: Chapter[] = [];
+  const spine = opfDoc.getElementsByTagName("spine")[0];
+  const itemrefs = spine.getElementsByTagName("itemref");
 
   // Initialize Turndown
   const turndownService = new TurndownService({
@@ -269,13 +240,61 @@ export const parseEpub = async (buffer: ArrayBuffer): Promise<Book> => {
     }
   }
 
-  return {
-    ...metadata,
-    chapters,
-    format: BookFormat.Epub,
-    resources,
-  };
-};
+  return { itemrefs, toc, chapters };
+}
+
+async function extractToc(opfDoc: Document, zip: JSZip) {
+  const tocNavItem = opfDoc.querySelector('manifest item[properties~="nav"]');
+  const tocNcxItem = opfDoc.querySelector(
+    'manifest item[media-type="application/x-dtbncx+xml"]'
+  );
+
+  const toc: { [href: string]: string } = {};
+
+  if (tocNavItem) {
+    // EPUB3 TOC
+    const tocHref = tocNavItem.getAttribute("href");
+
+    if (tocHref) {
+      const tocFile = zip.file(tocHref) || zip.file(`OEBPS/${tocHref}`);
+
+      if (tocFile) {
+        const tocDoc = await parseXmlFromZipFile(tocFile);
+        const navElements = tocDoc.querySelectorAll('nav[*|type="toc"] a');
+        navElements.forEach((a) => {
+          const href = a.getAttribute("href")?.split("#")[0];
+          if (href) toc[href] = a.textContent || "";
+        });
+      } else {
+        console.warn(`TOC file ${tocHref} not found in zip`);
+      }
+    }
+  } else if (tocNcxItem) {
+    // EPUB2 TOC
+    const tocHref = tocNcxItem.getAttribute("href");
+    if (tocHref) {
+      const tocFile = zip.file(tocHref) || zip.file(`OEBPS/${tocHref}`);
+      if (tocFile) {
+        const tocDoc = await parseXmlFromZipFile(tocFile);
+        const navPoints = tocDoc.querySelectorAll("navPoint");
+
+        navPoints.forEach((navPoint) => {
+          const content = navPoint.querySelector("content");
+          const text = navPoint.querySelector("text");
+          if (content && text) {
+            const href = content.getAttribute("src")?.split("#")[0];
+            if (href) toc[href] = text.textContent || "";
+          }
+        });
+      } else {
+        console.warn(`TOC file ${tocHref} not found in zip`);
+      }
+    }
+  } else {
+    console.warn("TOC not found in manifest");
+  }
+  return toc;
+}
 
 function getFileArrayBuffer(file: File): Promise<ArrayBuffer> {
   return new Promise((resolve, reject) => {

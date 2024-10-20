@@ -1,6 +1,5 @@
 import {
   useMemo,
-  useState,
   useEffect,
   ReactNode,
   MouseEvent,
@@ -15,9 +14,10 @@ import { Chapter } from "../lib/epub.ts";
 import {
   fontSizeAtom,
   isFastReadingFontEnabledAtom,
-  fastReadingPercentageAtom, idsGeneratedAtom,
+  fastReadingPercentageAtom,
+  idsGeneratedAtom,
 } from "../state/atoms.ts";
-import {useAtom, useAtomValue} from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { useSelectedBook } from "./use-selected-book.ts";
 
 interface UseMarkdownRendererProps {
@@ -201,11 +201,14 @@ export const useMarkdownRenderer = ({
     console.debug("Generating chapters");
     return (
       selectedBook?.chapters.map((chapter: Chapter, index: number) => (
-        <MemoizedMarkdown
-          key={`chapter-${index}`}
-          content={chapter.mdContent}
-          options={markdownOptions}
-        />
+        <>
+          <div id={`chapter-${chapter.href}`} />
+          <MemoizedMarkdown
+            key={`chapter-${index}`}
+            content={chapter.mdContent}
+            options={markdownOptions}
+          />
+        </>
       )) ?? []
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -234,7 +237,7 @@ export const useMarkdownRenderer = ({
     }, 2000);
 
     return () => clearInterval(intervalId);
-  }, [memoizedChapters]);
+  }, [memoizedChapters, setIdsGenerated]);
 
   return { memoizedChapters, idsGenerated };
 };

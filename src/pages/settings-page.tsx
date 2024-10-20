@@ -1,5 +1,4 @@
-import React from "react";
-import {useAtom} from "jotai";
+import { useAtom } from "jotai";
 import {
   darkModeAtom,
   eyeSaverModeAtom,
@@ -10,15 +9,16 @@ import {
   isSequentialReadingEnabledAtom,
   scrollBlockAtom,
   ScrollBlockOption,
-  wordGroupSizeAtom
+  wordGroupSizeAtom,
 } from "../state/atoms";
-import {PreviewSection} from "./preview-section.tsx";
-import {SettingSelect} from "./setting-select.tsx";
-import {SettingInput} from "./setting-input.tsx";
-import {SettingToggle} from "./setting-toggle.tsx";
-import {Button} from "../components/control/button.tsx";
-import {useNavigate} from "react-router-dom";
-import {FaChevronLeft} from "react-icons/fa";
+import { PreviewSection } from "./preview-section.tsx";
+import { SettingSelect } from "./setting-select.tsx";
+import { SettingInput } from "./setting-input.tsx";
+import { SettingToggle } from "./setting-toggle.tsx";
+import { Button } from "../components/control/button.tsx";
+import { useNavigate } from "react-router-dom";
+import { FaChevronLeft } from "react-icons/fa";
+import { twMerge } from "tailwind-merge";
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -27,9 +27,15 @@ export default function SettingsPage() {
   const [fontSize, setFontSize] = useAtom(fontSizeAtom);
   const [pace, setPace] = useAtom(focusWordPaceAtom);
   const [scrollBlock, setScrollBlock] = useAtom(scrollBlockAtom);
-  const [isFastReadingFontEnabled, setIsFastReadingFontEnabled] = useAtom(isFastReadingFontEnabledAtom);
-  const [isSequentialReadingEnabled, setIsSequentialReadingEnabled] = useAtom(isSequentialReadingEnabledAtom);
-  const [fastReadingPercentage, setFastReadingPercentage] = useAtom(fastReadingPercentageAtom);
+  const [isFastReadingFontEnabled, setIsFastReadingFontEnabled] = useAtom(
+    isFastReadingFontEnabledAtom
+  );
+  const [isSequentialReadingEnabled, setIsSequentialReadingEnabled] = useAtom(
+    isSequentialReadingEnabledAtom
+  );
+  const [fastReadingPercentage, setFastReadingPercentage] = useAtom(
+    fastReadingPercentageAtom
+  );
   const [wordGroupSize, setWordGroupSize] = useAtom(wordGroupSizeAtom);
 
   const goBack = () => {
@@ -37,17 +43,34 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen">
-      <header className="text-white py-4 px-6 border-b border-b-gray-200">
+    <div
+      className={`min-h-screen ${
+        darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-black"
+      }`}
+    >
+      <header
+        className={`py-4 px-6 border-b ${
+          darkMode ? "border-b-gray-700" : "border-b-gray-200"
+        }`}
+      >
         <Button
           onClick={goBack}
           className={"bg-transparent h-8 justify-center items-center flex"}
         >
-          <FaChevronLeft />
+          <FaChevronLeft
+            className={twMerge(
+              "text-xl",
+              darkMode ? "text-white" : "text-black"
+            )}
+          />
         </Button>
       </header>
       <main className="container mx-auto px-4 py-8">
-        <div className="bg-white shadow-md rounded-lg p-6">
+        <div
+          className={`shadow-md rounded-lg p-6 ${
+            darkMode ? "bg-gray-800" : "bg-white"
+          }`}
+        >
           <h2 className="text-xl font-semibold mb-4">Appearance</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <SettingToggle
@@ -71,7 +94,11 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <div className="bg-white shadow-md rounded-lg p-6 mt-6">
+        <div
+          className={`shadow-md rounded-lg p-6 mt-6 ${
+            darkMode ? "bg-gray-800" : "bg-white"
+          }`}
+        >
           <h2 className="text-xl font-semibold mb-4">Reading Settings</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <SettingInput
@@ -85,12 +112,14 @@ export default function SettingsPage() {
             <SettingSelect
               label="Scroll Block"
               value={scrollBlock}
-              onChange={(e) => setScrollBlock(e.target.value as ScrollBlockOption)}
+              onChange={(e) =>
+                setScrollBlock(e.target.value as ScrollBlockOption)
+              }
               options={[
-                {value: "start", label: "Start"},
-                {value: "center", label: "Center"},
-                {value: "end", label: "End"},
-                {value: "nearest", label: "Nearest"},
+                { value: "start", label: "Start" },
+                { value: "center", label: "Center" },
+                { value: "end", label: "End" },
+                { value: "nearest", label: "Nearest" },
               ]}
             />
             <SettingToggle
@@ -107,7 +136,9 @@ export default function SettingsPage() {
               label="Fast Reading Percentage"
               type="number"
               value={fastReadingPercentage}
-              onChange={(e) => setFastReadingPercentage(parseFloat(e.target.value))}
+              onChange={(e) =>
+                setFastReadingPercentage(parseFloat(e.target.value))
+              }
               min={0}
               max={100}
               step={0.1}
@@ -123,15 +154,24 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <div className="bg-white shadow-md rounded-lg p-6 mt-6">
+        <div
+          className={`shadow-md rounded-lg p-6 mt-6 ${
+            darkMode ? "bg-gray-800" : "bg-white"
+          }`}
+        >
           <h2 className="text-xl font-semibold mb-4">Preview</h2>
           <div className="space-y-4">
-            <PreviewSection title="Book text preview" text="This is a preview text"/>
-            <PreviewSection title="Word group tab preview" text="This is a preview text"/>
+            <PreviewSection
+              title="Book text preview"
+              text="This is a preview text"
+            />
+            <PreviewSection
+              title="Word group tab preview"
+              text="This is a preview text"
+            />
           </div>
         </div>
       </main>
     </div>
   );
 }
-

@@ -24,7 +24,7 @@ export const ControlButtons = ({
   <>
     <div className={"flex items-center gap-4 mb-2"}>
       <button
-        className="w-14 h-14 duration-100 rounded-full pr-0.5 hover:bg-gray-200 border border-gray-100 flex items-center justify-center transition-all"
+        className="w-14 h-14 rounded-full pr-0.5 hover:bg-gray-200 border border-gray-100 flex items-center justify-center transition-all"
         onClick={onGoBackwards}
         onMouseDown={() => startContinuousMovement("backward")}
         onMouseUp={stopContinuousMovement}

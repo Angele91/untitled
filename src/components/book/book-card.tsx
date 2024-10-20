@@ -1,10 +1,10 @@
-import { twMerge } from 'tailwind-merge';
-import {FC, useState, useRef, useEffect} from 'react';
-import { FaTrash, FaEllipsisV } from 'react-icons/fa';
-import {useOnClickOutside} from "usehooks-ts";
+import { twMerge } from "tailwind-merge";
+import { FC, useState, useRef, useEffect } from "react";
+import { FaTrash, FaEllipsisV } from "react-icons/fa";
+import { useOnClickOutside } from "usehooks-ts";
 import ColorThief from "colorthief";
-import {Book} from "../../lib/epub.ts";
-import {truncate} from "lodash";
+import { Book } from "../../lib/epub.ts";
+import { truncate } from "lodash";
 
 interface BookCardProps {
   book: Book;
@@ -25,10 +25,14 @@ const BookCard: FC<BookCardProps> = ({ book, onBookSelect, onDeleteBook }) => {
 
     if (img) {
       const dominantColor = colorThief.getColor(img);
-      const brightness = (dominantColor[0] * 299 + dominantColor[1] * 587 + dominantColor[2] * 114) / 1000;
+      const brightness =
+        (dominantColor[0] * 299 +
+          dominantColor[1] * 587 +
+          dominantColor[2] * 114) /
+        1000;
       setIsDarkBackground(brightness < 128);
     }
-  }
+  };
 
   useEffect(() => {
     const img = imgRef.current;
@@ -43,7 +47,7 @@ const BookCard: FC<BookCardProps> = ({ book, onBookSelect, onDeleteBook }) => {
       onClick={() => onBookSelect(book)}
     >
       <img
-        className="w-full h-full object-cover group-hover:scale-125 transition-all duration-500"
+        className="w-full h-full object-cover group-hover:scale-125 transition-all"
         src={book.cover}
         alt={book.title}
       />
@@ -53,30 +57,36 @@ const BookCard: FC<BookCardProps> = ({ book, onBookSelect, onDeleteBook }) => {
           "opacity-0 group-hover:opacity-100 md:flex hidden"
         )}
       >
-        <span className="text-lg text-white">{truncate(book.title, {
-          length: 25,
-          omission: '...',
-          separator: ' ',
-        })}</span>
+        <span className="text-lg text-white">
+          {truncate(book.title, {
+            length: 25,
+            omission: "...",
+            separator: " ",
+          })}
+        </span>
         <span className="text-sm text-white">{book.author}</span>
       </div>
 
       {/* Mobile-only three-dot icon */}
       <button
-        className={`absolute top-2 right-2 md:hidden ${isDarkBackground ? 'text-white' : 'text-black'}`}
+        className={`absolute top-2 right-2 md:hidden ${
+          isDarkBackground ? "text-white" : "text-black"
+        }`}
         onClick={(e) => {
           e.stopPropagation();
           setShowDropdown(!showDropdown);
         }}
       >
-        <FaEllipsisV className="text-2xl"/>
+        <FaEllipsisV className="text-2xl" />
       </button>
 
       {/* Mobile dropdown */}
       <div
         className={twMerge(
-          "absolute right-2 top-10 bg-white rounded-md shadow-lg z-20 transition-all duration-300 md:hidden",
-          showDropdown ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"
+          "absolute right-2 top-10 bg-white rounded-md shadow-lg z-20 transition-all md:hidden",
+          showDropdown
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 -translate-y-2 pointer-events-none"
         )}
         ref={mobileDropdownRef}
       >
@@ -87,7 +97,7 @@ const BookCard: FC<BookCardProps> = ({ book, onBookSelect, onDeleteBook }) => {
             onDeleteBook(book);
           }}
         >
-          <FaTrash className="mr-2"/> Delete
+          <FaTrash className="mr-2" /> Delete
         </button>
       </div>
 
@@ -99,16 +109,18 @@ const BookCard: FC<BookCardProps> = ({ book, onBookSelect, onDeleteBook }) => {
           onDeleteBook(book);
         }}
       >
-        <FaTrash/>
+        <FaTrash />
       </button>
 
       {/* Mobile book info overlay */}
       <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white p-2 md:hidden">
-        <h3 className="text-lg font-semibold">{truncate(book.title, {
-          length: 25,
-          omission: '...',
-          separator: ' ',
-        })}</h3>
+        <h3 className="text-lg font-semibold">
+          {truncate(book.title, {
+            length: 25,
+            omission: "...",
+            separator: " ",
+          })}
+        </h3>
         <p className="text-sm">{book.author}</p>
       </div>
     </div>

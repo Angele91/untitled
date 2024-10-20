@@ -1,6 +1,13 @@
-import {ChangeEventHandler, FC, useCallback, useState, DragEvent, ChangeEvent} from 'react';
-import { FaFileUpload } from 'react-icons/fa';
-import {twMerge} from "tailwind-merge";
+import {
+  ChangeEventHandler,
+  FC,
+  useCallback,
+  useState,
+  DragEvent,
+  ChangeEvent,
+} from "react";
+import { FaFileUpload } from "react-icons/fa";
+import { twMerge } from "tailwind-merge";
 import useDarkMode from "../../hooks/useDarkMode.ts";
 
 interface DragAndDropInputProps {
@@ -20,29 +27,47 @@ const DragAndDropInput: FC<DragAndDropInputProps> = ({ onChooseFile }) => {
     setIsDragging(false);
   }, []);
 
-  const handleDrop = useCallback((e: DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      onChooseFile({ target: { files: e.dataTransfer.files } } as ChangeEvent<HTMLInputElement>);
-    }
-  }, [onChooseFile]);
+  const handleDrop = useCallback(
+    (e: DragEvent) => {
+      e.preventDefault();
+      setIsDragging(false);
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        onChooseFile({
+          target: { files: e.dataTransfer.files },
+        } as ChangeEvent<HTMLInputElement>);
+      }
+    },
+    [onChooseFile]
+  );
 
   return (
     <div
       className={twMerge(
         `flex h-[230px] justify-center items-center border-2 border-dashed rounded-md p-4 transition-colors`,
-        isDarkMode ? 'border-gray-600 bg-gray-800' : '',
-        isDragging ? isDarkMode ? 'border-blue-500' : 'border-blue-400' : isDarkMode ? 'border-gray-600' : 'border-gray-400'
+        isDarkMode ? "border-gray-600 bg-gray-800" : "",
+        isDragging
+          ? isDarkMode
+            ? "border-blue-500"
+            : "border-blue-400"
+          : isDarkMode
+          ? "border-gray-600"
+          : "border-gray-400"
       )}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      onClick={() => document.getElementById('fileInput')?.click()}
+      onClick={() => {
+        console.log("parent clicked");
+        document.getElementById("fileInput")?.click();
+      }}
     >
       <input
         type="file"
         onChange={onChooseFile}
+        onClick={(e) => {
+          e.stopPropagation();
+          console.log("clicked");
+        }}
         multiple
         id="fileInput"
         className="hidden"

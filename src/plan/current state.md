@@ -1,8 +1,6 @@
 # Current state
-- [ ] Bug: Wonky behavior when enabling dark mode and eye saver mode at the same time.
-- [ ] Bug: Strange overflow in the main page.
-- [ ] Bug: White text on mobile book card.
-- [ ] Bug: File selector opens twice when uploading new books
+- [x] Bug: File selector opens twice when uploading new books
+- [ ] Bug: Improve book parsing
 - [ ] Feature: Search
 - [ ] Feature: Highlighting
 - [ ] Feature: Bookmarking
@@ -11,6 +9,9 @@
 - [ ] Feature: Improve the settings page with predefined options
 - [ ] Feature: Add a loading spinner when the book is loading.
 - [ ] Feature: In-book linking
+- [x] Bug: White text on mobile book card.
+- [x] Bug: Strange overflow in the main page.
+- [x] Bug: Wonky behavior when enabling dark mode and eye saver mode at the same time.
 - [x] Bug: Clicking a chapter in the chapter list does not navigate to the
 chapter.
 - [x] Bug: Prevent smooth scrolling when the book is opened.

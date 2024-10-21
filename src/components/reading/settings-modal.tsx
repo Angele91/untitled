@@ -1,9 +1,9 @@
 import * as Yup from "yup";
 import Modal from "../utility/modal.tsx";
 import { Field, Form, Formik, FormikHelpers } from "formik";
-import EyeSaverModeToggle from "./EyeSaverModeToggle";
-import {useDarkMode} from "usehooks-ts";
-import {twMerge} from "tailwind-merge";
+import EyeSaverModeToggle from "./eye-saver-mode-toggle.tsx";
+import { useDarkMode } from "usehooks-ts";
+import { twMerge } from "tailwind-merge";
 
 const SettingsSchema = Yup.object().shape({
   wordGroupSize: Yup.number()
@@ -30,28 +30,29 @@ export const SettingsModal = ({
   const isDarkMode = useDarkMode();
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Reading Settings" >
+    <Modal isOpen={isOpen} onClose={onClose} title="Reading Settings">
       <Formik
-        initialValues={{wordGroupSize}}
+        initialValues={{ wordGroupSize }}
         validationSchema={SettingsSchema}
         onSubmit={(
           values: SettingsFormValues,
-          {setSubmitting}: FormikHelpers<SettingsFormValues>
+          { setSubmitting }: FormikHelpers<SettingsFormValues>
         ) => {
           setWordGroupSize(values.wordGroupSize);
           setSubmitting(false);
           onClose();
         }}
       >
-        {({errors, touched, isSubmitting}) => (
+        {({ errors, touched, isSubmitting }) => (
           <Form className="flex flex-col items-start">
             <div className="flex items-center mb-4">
-              <label htmlFor="wordGroupSize" className={
-                twMerge(
+              <label
+                htmlFor="wordGroupSize"
+                className={twMerge(
                   "text-sm mr-2",
                   isDarkMode ? "text-white" : "text-gray-800"
-                )
-              }>
+                )}
+              >
                 Words per group:
               </label>
               <Field
@@ -60,7 +61,9 @@ export const SettingsModal = ({
                 type="number"
                 className={twMerge(
                   "w-16 text-sm border rounded px-2 py-1",
-                  isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
+                  isDarkMode
+                    ? "bg-gray-800 text-white"
+                    : "bg-white text-gray-800"
                 )}
               />
             </div>

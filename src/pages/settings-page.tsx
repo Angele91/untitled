@@ -19,6 +19,7 @@ import { Button } from "../components/control/button.tsx";
 import { useNavigate } from "react-router-dom";
 import { FaChevronLeft } from "react-icons/fa";
 import { twMerge } from "tailwind-merge";
+import { useState } from "react";
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -37,6 +38,9 @@ export default function SettingsPage() {
     fastReadingPercentageAtom
   );
   const [wordGroupSize, setWordGroupSize] = useAtom(wordGroupSizeAtom);
+
+  const [fontSizeOption, setFontSizeOption] = useState("custom");
+  const [paceOption, setPaceOption] = useState("custom");
 
   const goBack = () => {
     navigate(-1);
@@ -83,14 +87,39 @@ export default function SettingsPage() {
               checked={darkMode}
               onChange={(e) => setDarkMode(e.target.checked)}
             />
-            <SettingInput
+            <SettingSelect
               label="Font Size"
-              type="number"
-              value={parseInt(fontSize)}
-              onChange={(e) => setFontSize(`${e.target.value}px`)}
-              min={8}
-              max={32}
+              value={fontSizeOption}
+              onChange={(e) => {
+                const value = e.target.value;
+                setFontSizeOption(value);
+                if (value !== "custom") {
+                  setFontSize(value);
+                }
+              }}
+              options={[
+                { value: "12px", label: "12px" },
+                { value: "14px", label: "14px" },
+                { value: "16px", label: "16px" },
+                { value: "18px", label: "18px" },
+                { value: "20px", label: "20px" },
+                { value: "24px", label: "24px" },
+                { value: "28px", label: "28px" },
+                { value: "32px", label: "32px" },
+                { value: "36px", label: "36px" },
+                { value: "custom", label: "Custom" },
+              ]}
             />
+            {fontSizeOption === "custom" && (
+              <SettingInput
+                label="Custom Font Size"
+                type="number"
+                value={parseInt(fontSize)}
+                onChange={(e) => setFontSize(`${e.target.value}px`)}
+                min={8}
+                max={32}
+              />
+            )}
           </div>
         </div>
 
@@ -101,14 +130,35 @@ export default function SettingsPage() {
         >
           <h2 className="text-xl font-semibold mb-4">Reading Settings</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <SettingInput
+            <SettingSelect
               label="Focus Word Pace"
-              type="number"
-              value={pace}
-              onChange={(e) => setPace(parseInt(e.target.value))}
-              min={100}
-              max={1000}
+              value={paceOption}
+              onChange={(e) => {
+                const value = e.target.value;
+                setPaceOption(value);
+                if (value !== "custom") {
+                  setPace(parseInt(value));
+                }
+              }}
+              options={[
+                { value: "50", label: "Very Fast" },
+                { value: "100", label: "Fast" },
+                { value: "150", label: "Normal" },
+                { value: "200", label: "Slow" },
+                { value: "250", label: "Very Slow" },
+                { value: "custom", label: "Custom" },
+              ]}
             />
+            {paceOption === "custom" && (
+              <SettingInput
+                label="Custom Focus Word Pace"
+                type="number"
+                value={pace}
+                onChange={(e) => setPace(parseInt(e.target.value))}
+                min={100}
+                max={1000}
+              />
+            )}
             <SettingSelect
               label="Scroll Block"
               value={scrollBlock}

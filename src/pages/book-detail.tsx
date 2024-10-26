@@ -13,8 +13,8 @@ import { useWordHighlight } from "../hooks/use-word-highlight.ts";
 import { useMarkdownRenderer } from "../hooks/use-markdown-renderer.tsx";
 import SequentialReadingBar from "../components/reading/sequential-reading-bar.tsx";
 import { ContextMenu } from "../components/utility/context-menu.tsx";
-import { useAtom, useAtomValue } from "jotai";
-import { isSearchModeAtom, wordGroupSizeAtom } from "../state/atoms.ts";
+import { useAtom } from "jotai";
+import { isSearchModeAtom, store } from "../state/atoms.ts";
 import useEyeSaverMode from "../hooks/useEyeSaverMode.ts";
 import useDarkMode from "../hooks/useDarkMode.ts";
 import { useNavigate } from "react-router-dom";
@@ -23,6 +23,7 @@ import { RxCrossCircled } from "react-icons/rx";
 import { findMatchesInElement, MatchResult } from "../lib/utils.ts";
 import debounce from "lodash/debounce";
 import { trim } from "lodash";
+import { smoothScroll } from "../lib/dom.ts";
 
 export function SearchInfo({ onClose }: { onClose: () => void }) {
   const selectedBook = useSelectedBook();
@@ -60,11 +61,7 @@ export function SearchInfo({ onClose }: { onClose: () => void }) {
   }, [searchQuery, selectedBook, debouncedSearch]);
 
   const handleResultClick = (result: MatchResult) => {
-    result.element.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-      inline: "center",
-    });
+    smoothScroll(result.element, "center");
 
     // TODO: select the search result
 
@@ -159,13 +156,14 @@ const BookDetail: FC = () => {
 
   const selectedBook = useSelectedBook();
 
-  const wordGroupSize = useAtomValue(wordGroupSizeAtom);
+  const [isSearchMode, setIsSearchMode] = useAtom(isSearchModeAtom, {
+    store: store,
+  });
   const [selectedWordIndex, setSelectedWordIndex] = useState<number | null>(
     null
   );
   const eyeSaverMode = useEyeSaverMode();
   const darkMode = useDarkMode();
-  const [isSearchMode, setIsSearchMode] = useAtom(isSearchModeAtom);
 
   const [contextMenuPosition, setContextMenuPosition] = useState({
     x: 0,
@@ -239,7 +237,7 @@ const BookDetail: FC = () => {
     setContextMenuPosition({ x: 0, y: 0 });
   };
 
-  const currentWordGroup = getCurrentWordGroup(wordGroupSize);
+  const currentWordGroup = getCurrentWordGroup();
 
   const barColor = "red";
 

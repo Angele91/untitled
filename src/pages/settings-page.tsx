@@ -6,9 +6,12 @@ import {
   focusWordPaceAtom,
   fontSizeAtom,
   isFastReadingFontEnabledAtom,
+  isReadWholeSentencesAtom,
   isSequentialReadingEnabledAtom,
   scrollBlockAtom,
   ScrollBlockOption,
+  store,
+  textToSpeechEnabledAtom,
   wordGroupSizeAtom,
 } from "../state/atoms";
 import { PreviewSection } from "./preview-section.tsx";
@@ -23,21 +26,56 @@ import { useState } from "react";
 
 export default function SettingsPage() {
   const navigate = useNavigate();
-  const [eyeSaverMode, setEyeSaverMode] = useAtom(eyeSaverModeAtom);
-  const [darkMode, setDarkMode] = useAtom(darkModeAtom);
-  const [fontSize, setFontSize] = useAtom(fontSizeAtom);
-  const [pace, setPace] = useAtom(focusWordPaceAtom);
-  const [scrollBlock, setScrollBlock] = useAtom(scrollBlockAtom);
+  const [eyeSaverMode, setEyeSaverMode] = useAtom(eyeSaverModeAtom, {
+    store: store,
+  });
+  const [darkMode, setDarkMode] = useAtom(darkModeAtom, {
+    store: store,
+  });
+  const [fontSize, setFontSize] = useAtom(fontSizeAtom, {
+    store: store,
+  });
+  const [pace, setPace] = useAtom(focusWordPaceAtom, {
+    store: store,
+  });
+  const [scrollBlock, setScrollBlock] = useAtom(scrollBlockAtom, {
+    store: store,
+  });
   const [isFastReadingFontEnabled, setIsFastReadingFontEnabled] = useAtom(
-    isFastReadingFontEnabledAtom
+    isFastReadingFontEnabledAtom,
+    {
+      store: store,
+    }
   );
   const [isSequentialReadingEnabled, setIsSequentialReadingEnabled] = useAtom(
-    isSequentialReadingEnabledAtom
+    isSequentialReadingEnabledAtom,
+    {
+      store: store,
+    }
   );
   const [fastReadingPercentage, setFastReadingPercentage] = useAtom(
-    fastReadingPercentageAtom
+    fastReadingPercentageAtom,
+    {
+      store: store,
+    }
   );
-  const [wordGroupSize, setWordGroupSize] = useAtom(wordGroupSizeAtom);
+  const [wordGroupSize, setWordGroupSize] = useAtom(wordGroupSizeAtom, {
+    store: store,
+  });
+
+  const [isReadWholeSentences, setIsReadWholeSentences] = useAtom(
+    isReadWholeSentencesAtom,
+    {
+      store: store,
+    }
+  );
+
+  const [textToSpeechEnabled, setTextToSpeechEnabled] = useAtom(
+    textToSpeechEnabledAtom,
+    {
+      store: store,
+    }
+  );
 
   const [fontSizeOption, setFontSizeOption] = useState("custom");
   const [paceOption, setPaceOption] = useState("custom");
@@ -182,6 +220,7 @@ export default function SettingsPage() {
               checked={isSequentialReadingEnabled}
               onChange={(e) => setIsSequentialReadingEnabled(e.target.checked)}
             />
+
             <SettingInput
               label="Fast Reading Percentage"
               type="number"
@@ -193,14 +232,33 @@ export default function SettingsPage() {
               max={100}
               step={0.1}
             />
-            <SettingInput
-              label="Word Group Size"
-              type="number"
-              value={wordGroupSize}
-              onChange={(e) => setWordGroupSize(parseInt(e.target.value))}
-              min={1}
-              max={10}
-            />
+
+            {isSequentialReadingEnabled && (
+              <SettingToggle
+                label="Read Whole Sentences"
+                checked={isReadWholeSentences}
+                onChange={(e) => setIsReadWholeSentences(e.target.checked)}
+              />
+            )}
+
+            {isSequentialReadingEnabled && (
+              <SettingToggle
+                label="Text to Speech Enabled"
+                checked={textToSpeechEnabled}
+                onChange={(e) => setTextToSpeechEnabled(e.target.checked)}
+              />
+            )}
+
+            {isSequentialReadingEnabled && !isReadWholeSentences && (
+              <SettingInput
+                label="Word Group Size"
+                type="number"
+                value={wordGroupSize}
+                onChange={(e) => setWordGroupSize(parseInt(e.target.value))}
+                min={1}
+                max={10}
+              />
+            )}
           </div>
         </div>
 

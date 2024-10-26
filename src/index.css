@@ -26,3 +26,8 @@ a {
 .eye-saver-mode video {
   filter: brightness(0.95) sepia(0.2);
 }
+
+.scrollable-container {
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}

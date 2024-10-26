@@ -1,7 +1,10 @@
+import { delayConfig } from "./constants.ts";
+import { getWordElementById } from "./dom.ts";
 import {
   getNextElementWithText,
   getPreviousElementWithText,
 } from "./domTraversal.ts";
+import { getCurrentSentence } from "./speech.ts";
 
 export const getNextWord = (
   currentWord: HTMLElement | null
@@ -96,4 +99,103 @@ export const getPreviousWord = (
   const punctuation = previousWord.textContent?.trim().slice(-1) || "";
 
   return { element: previousWord, punctuation, isParagraphStart };
+};
+
+/**
+ * Gets the next word group based on current position and size
+ */
+export const getWordGroup = (
+  startWordIndex: number | undefined,
+  size: number
+): string[] => {
+  const words: string[] = [];
+  let currentWord = getWordElementById(startWordIndex);
+
+  for (let i = 0; i < size; i++) {
+    if (currentWord) {
+      words.push(currentWord.textContent || "");
+      const { element } = getNextWord(currentWord);
+      currentWord = element as HTMLElement;
+    } else {
+      break;
+    }
+  }
+
+  return words;
+};
+
+/**
+ * Calculates total delay for a word group
+ */
+export const calculateWordGroupDelay = (
+  currentWord: HTMLElement,
+  wordGroupSize: number,
+  focusWordPace: number
+): {
+  totalDelay: number;
+  nextWord: HTMLElement | null;
+} => {
+  let nextWord = currentWord;
+  let isParagraphEnd = false;
+  let maxPunctuation = "";
+  let totalDelay = 0;
+
+  for (let i = 0; i < wordGroupSize; i++) {
+    const {
+      element,
+      punctuation,
+      isParagraphEnd: isEnd,
+    } = getNextWord(nextWord);
+
+    if (!element) break;
+
+    nextWord = element;
+    isParagraphEnd = isParagraphEnd || isEnd;
+
+    if (
+      delayConfig[punctuation as keyof typeof delayConfig] >
+      delayConfig[maxPunctuation as keyof typeof delayConfig]
+    ) {
+      maxPunctuation = punctuation;
+    }
+
+    const wordDelay =
+      focusWordPace +
+      (isEnd
+        ? delayConfig.paragraph
+        : delayConfig[punctuation as keyof typeof delayConfig] ||
+          delayConfig.default);
+
+    totalDelay += wordDelay;
+  }
+
+  return { totalDelay, nextWord: nextWord === currentWord ? null : nextWord };
+};
+
+export const getCurrentTextGroup = (
+  startElement: HTMLElement | null,
+  isReadWholeSentence: boolean,
+  wordGroupSize: number
+): string => {
+  if (!startElement) return "";
+
+  if (isReadWholeSentence) {
+    const { text } = getCurrentSentence(startElement);
+    return text;
+  }
+
+  const words: string[] = [];
+  let currentWord = startElement;
+
+  for (let i = 0; i < wordGroupSize; i++) {
+    if (currentWord) {
+      words.push(currentWord.textContent || "");
+      const { element } = getNextWord(currentWord);
+      currentWord = element!;
+    } else {
+      break;
+    }
+  }
+
+  return words.join(" ");
 };

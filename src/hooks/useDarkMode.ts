@@ -1,9 +1,11 @@
 import { useEffect } from "react";
 import { useAtom } from "jotai";
-import { darkModeAtom } from "../state/atoms";
+import { darkModeAtom, store } from "../state/atoms";
 
 const useDarkMode = () => {
-  const [darkMode] = useAtom(darkModeAtom);
+  const [darkMode] = useAtom(darkModeAtom, {
+    store: store,
+  });
 
   useEffect(() => {
     const root = document.documentElement;

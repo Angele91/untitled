@@ -1,7 +1,15 @@
 import { RefObject, useEffect, useState } from "react";
 import { useAtomValue } from "jotai";
-import {idsGeneratedAtom, scrollBlockAtom, wordGroupSizeAtom} from "../state/atoms";
+import {
+  idsGeneratedAtom,
+  isReadWholeSentencesAtom,
+  scrollBlockAtom,
+  store,
+  wordGroupSizeAtom,
+} from "../state/atoms";
 import { getNextWord } from "../lib/textProcessing";
+import { getCurrentSentence } from "../lib/speech";
+import { smoothScroll } from "../lib/dom";
 
 interface UseWordHighlightProps {
   contentRef: RefObject<HTMLDivElement>;
@@ -12,13 +20,23 @@ export const useWordHighlight = ({
   contentRef,
   focusedWordIndex,
 }: UseWordHighlightProps) => {
-  const wordGroupSize = useAtomValue(wordGroupSizeAtom);
-  const scrollBlock = useAtomValue(scrollBlockAtom);
-  const idsGenerated = useAtomValue(idsGeneratedAtom);
+  const wordGroupSize = useAtomValue(wordGroupSizeAtom, {
+    store: store,
+  });
+  const scrollBlock = useAtomValue(scrollBlockAtom, {
+    store: store,
+  });
+  const idsGenerated = useAtomValue(idsGeneratedAtom, {
+    store: store,
+  });
   const [firstFocusHappened, setFirstFocusHappened] = useState(false);
   const [focusedWordsCoords, setFocusedWordsCoords] = useState<
     Array<{ top: number; left: number; width: number; height: number } | null>
   >([]);
+
+  const isReadWholeSentenceEnabled = useAtomValue(isReadWholeSentencesAtom, {
+    store: store,
+  });
 
   useEffect(() => {
     if (!idsGenerated || !focusedWordIndex) return;
@@ -32,7 +50,6 @@ export const useWordHighlight = ({
       }
 
       const containerRect = container.getBoundingClientRect();
-
       const coords: Array<{
         top: number;
         left: number;
@@ -42,36 +59,56 @@ export const useWordHighlight = ({
 
       let currentWord = document.getElementById(`word-${focusedWordIndex}`);
 
-      for (let i = 0; i < wordGroupSize; i++) {
-        if (currentWord) {
-          const wordRect = currentWord.getBoundingClientRect();
+      if (!currentWord) return;
 
+      const wordsToHighlight = isReadWholeSentenceEnabled
+        ? getCurrentSentence(currentWord).words
+        : Array(wordGroupSize)
+            .fill(null)
+            .map((_, i) => {
+              if (i === 0) return currentWord;
+              const { element } = getNextWord(currentWord!);
+              currentWord = element!;
+              return element;
+            })
+            .filter(Boolean);
+
+      wordsToHighlight.forEach((word) => {
+        if (word) {
+          const wordRect = word.getBoundingClientRect();
           coords.push({
             top: wordRect.top - containerRect.top + container.scrollTop,
             left: wordRect.left - containerRect.left + container.scrollLeft,
             width: wordRect.width,
             height: wordRect.height,
           });
-
-          const { element } = getNextWord(currentWord);
-          currentWord = element!;
-          currentWord.scrollIntoView({ block: scrollBlock, behavior: firstFocusHappened ? "smooth" : "auto" });
-          setFirstFocusHappened(
-            coords.filter(Boolean).length === wordGroupSize
-          );
         } else {
-          console.warn(`Word with index ${focusedWordIndex + i} not found`);
           coords.push(null);
         }
-      }
+      });
 
       setFocusedWordsCoords(coords);
+
+      const lastWord = wordsToHighlight[wordsToHighlight.length - 1];
+      if (lastWord && !firstFocusHappened) {
+        console.debug("Scrolling into view to focused word");
+        smoothScroll(lastWord, scrollBlock);
+        setFirstFocusHappened(true);
+      }
     };
 
     updateCoords();
     window.addEventListener("resize", updateCoords);
     return () => window.removeEventListener("resize", updateCoords);
-  }, [focusedWordIndex, contentRef, wordGroupSize, scrollBlock, idsGenerated, firstFocusHappened]);
+  }, [
+    focusedWordIndex,
+    contentRef,
+    wordGroupSize,
+    scrollBlock,
+    idsGenerated,
+    firstFocusHappened,
+    isReadWholeSentenceEnabled,
+  ]);
 
   return { focusedWordsCoords };
 };

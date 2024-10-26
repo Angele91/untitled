@@ -1,10 +1,11 @@
 import { FC, useRef } from "react";
 import { useAtom } from "jotai";
-import { currentChapterIndexAtom } from "../../state/atoms.ts";
+import { currentChapterIndexAtom, store } from "../../state/atoms.ts";
 import { FaTimes } from "react-icons/fa";
 import { Chapter } from "../../lib/epub.ts";
 import { useOnClickOutside } from "usehooks-ts";
 import { useSelectedBook } from "../../hooks/use-selected-book.ts";
+import { smoothScroll } from "../../lib/dom.ts";
 
 interface ChapterDrawerProps {
   isOpen: boolean;
@@ -14,7 +15,10 @@ interface ChapterDrawerProps {
 const ChapterDrawer: FC<ChapterDrawerProps> = ({ isOpen, onClose }) => {
   const selectedBook = useSelectedBook();
   const [currentChapterIndex, setCurrentChapterIndex] = useAtom(
-    currentChapterIndexAtom
+    currentChapterIndexAtom,
+    {
+      store: store,
+    }
   );
   const contentRef = useRef<HTMLDivElement | null>(null);
 
@@ -23,9 +27,8 @@ const ChapterDrawer: FC<ChapterDrawerProps> = ({ isOpen, onClose }) => {
   const handleChapterClick = (chapter: Chapter, index: number) => {
     const chapterElement = document.getElementById(`chapter-${chapter.href}`);
     if (chapterElement) {
-      chapterElement.scrollIntoView({
-        block: "start",
-      });
+      console.debug(`Scrolling into view to chapter ${chapter.title}`);
+      smoothScroll(chapterElement, "start");
       setCurrentChapterIndex(index);
     }
     onClose();

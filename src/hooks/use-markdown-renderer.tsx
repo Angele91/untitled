@@ -16,6 +16,7 @@ import {
   isFastReadingFontEnabledAtom,
   fastReadingPercentageAtom,
   idsGeneratedAtom,
+  store,
 } from "../state/atoms.ts";
 import { useAtom, useAtomValue } from "jotai";
 import { useSelectedBook } from "./use-selected-book.ts";
@@ -30,11 +31,20 @@ export const useMarkdownRenderer = ({
   onWordLongPress,
 }: UseMarkdownRendererProps) => {
   const selectedBook = useSelectedBook();
-  const fontSize = useAtomValue(fontSizeAtom);
-  const enableFastReadingFont = useAtomValue(isFastReadingFontEnabledAtom);
-  const fastReadingFontPercentage = useAtomValue(fastReadingPercentageAtom);
+  const fontSize = useAtomValue(fontSizeAtom, {
+    store: store,
+  });
+  const enableFastReadingFont = useAtomValue(isFastReadingFontEnabledAtom, {
+    store: store,
+  });
+  const fastReadingFontPercentage = useAtomValue(fastReadingPercentageAtom, {
+    store: store,
+  });
 
-  const [idsGenerated, setIdsGenerated] = useAtom(idsGeneratedAtom);
+  const [idsGenerated, setIdsGenerated] = useAtom(idsGeneratedAtom, {
+    store: store,
+  });
+
   const spanBoldPercentage = enableFastReadingFont
     ? fastReadingFontPercentage ?? 45
     : 0;

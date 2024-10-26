@@ -1,9 +1,11 @@
 import React from "react";
 import { useAtom } from "jotai";
-import { darkModeAtom } from "../../state/atoms";
+import { darkModeAtom, store } from "../../state/atoms";
 
 const DarkModeToggle: React.FC = () => {
-  const [darkMode, setDarkMode] = useAtom(darkModeAtom);
+  const [darkMode, setDarkMode] = useAtom(darkModeAtom, {
+    store: store,
+  });
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);

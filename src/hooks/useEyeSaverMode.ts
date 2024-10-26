@@ -1,9 +1,11 @@
 import { useEffect } from "react";
 import { useAtom } from "jotai";
-import { eyeSaverModeAtom } from "../state/atoms";
+import { eyeSaverModeAtom, store } from "../state/atoms";
 
 const useEyeSaverMode = () => {
-  const [eyeSaverMode] = useAtom(eyeSaverModeAtom);
+  const [eyeSaverMode] = useAtom(eyeSaverModeAtom, {
+    store: store,
+  });
 
   useEffect(() => {
     const root = document.documentElement;

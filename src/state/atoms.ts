@@ -1,7 +1,9 @@
 import { atomWithStorage } from "jotai/utils";
-import { atom } from "jotai";
+import { atom, createStore } from "jotai";
 
 export type ScrollBlockOption = "start" | "center" | "end" | "nearest";
+
+export const store = createStore();
 
 export const fontSizeAtom = atomWithStorage<string>("fontSize", "16px");
 export const focusWordPaceAtom = atomWithStorage<number>("focusWordPace", 200);
@@ -45,3 +47,12 @@ export const currentChapterIndexAtom = atomWithStorage<number>(
 
 export const idsGeneratedAtom = atom(false);
 export const isSearchModeAtom = atom(false);
+export const isReadWholeSentencesAtom = atomWithStorage<boolean>(
+  "isReadWholeSentences",
+  false
+);
+
+export const textToSpeechEnabledAtom = atomWithStorage<boolean>(
+  "textToSpeechEnabled",
+  false
+);

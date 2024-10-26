@@ -7,7 +7,7 @@ import ChapterDrawer from "./chapter-drawer.tsx";
 import { truncate } from "lodash";
 import useDarkMode from "../../hooks/useDarkMode.ts";
 import { useAtom } from "jotai";
-import { isSearchModeAtom } from "../../state/atoms.ts";
+import { isSearchModeAtom, store } from "../../state/atoms.ts";
 import { SettingsButton } from "../reading/settings-button.tsx";
 import { useNavigate } from "react-router-dom";
 
@@ -25,7 +25,9 @@ interface BookHeaderProps {
 const BookDetailHeader: React.FC<BookHeaderProps> = ({ title, onBack }) => {
   const { showHeader } = useHeaderScroll();
   const [isChapterDrawerOpen, setIsChapterDrawerOpen] = useState(false);
-  const [isSearchMode, setSearchMode] = useAtom(isSearchModeAtom);
+  const [isSearchMode, setSearchMode] = useAtom(isSearchModeAtom, {
+    store: store,
+  });
   const isDarkMode = useDarkMode();
   const navigate = useNavigate();
 

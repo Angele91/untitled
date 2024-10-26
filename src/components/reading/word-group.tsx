@@ -29,7 +29,7 @@ export const WordGroup = ({
       <div
         className={twMerge(
           "text-xl font-medium h-0 transition-all overflow-hidden",
-          isExpanded && "h-[33px]"
+          isExpanded && "h-auto"
         )}
       >
         {currentWordGroup.split(" ").map((word, index) => (

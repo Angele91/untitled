@@ -1,9 +1,11 @@
 import React from "react";
 import { useAtom } from "jotai";
-import { eyeSaverModeAtom } from "../../state/atoms";
+import { eyeSaverModeAtom, store } from "../../state/atoms";
 
 const EyeSaverModeToggle: React.FC = () => {
-  const [eyeSaverMode, setEyeSaverMode] = useAtom(eyeSaverModeAtom);
+  const [eyeSaverMode, setEyeSaverMode] = useAtom(eyeSaverModeAtom, {
+    store: store,
+  });
 
   return (
     <div className="flex items-center">
